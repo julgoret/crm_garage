@@ -36,7 +36,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 if ($method === 'GET' && $action === 'get') {
   if (!valid_date($_GET['date'])) out(array('error' => 'date invalide'), 400);
   $date = $_GET['date'];
-  $req = "SELECT zones FROM plans WHERE date_plan = '" . $date . "' LIMIT 1";
+  $req = "SELECT zones FROM pl_plans WHERE date_plan = '" . $date . "' LIMIT 1";
   $res = mysqli_query($link, $req);
   if (!$res) out(array('error' => 'erreur base'), 500);
   $row = mysqli_fetch_assoc($res);
@@ -48,7 +48,7 @@ if ($method === 'GET' && $action === 'get') {
 
 if ($method === 'GET' && $action === 'range') {
   // liste des dates ayant un plan sauvegardé (pour marquer le curseur)
-  $req = "SELECT DATE_FORMAT(date_plan, '%Y-%m-%d') AS d FROM plans";
+  $req = "SELECT DATE_FORMAT(date_plan, '%Y-%m-%d') AS d FROM pl_plans";
   $res = mysqli_query($link, $req);
   if (!$res) out(array('error' => 'erreur base'), 500);
   $dates = array();
@@ -64,7 +64,7 @@ if ($method === 'POST' && ($action === 'save' || $action === 'copy')) {
     $zones = $input['zones'];
     if (!valid_zones($zones)) out(array('error' => 'zones invalides'), 400);
     $zones_json = json_encode($zones);
-    $req = "REPLACE INTO plans (date_plan, zones, time_modif) VALUES ('" .
+    $req = "REPLACE INTO pl_plans (date_plan, zones, time_modif) VALUES ('" .
       $input['date'] . "', '" . addslashes($zones_json) . "', " . time() . ")";
     if (!mysqli_query($link, $req)) out(array('error' => 'erreur base'), 500);
     out(array('ok' => true, 'date' => $input['date'], 'count' => count($zones)));
@@ -72,11 +72,11 @@ if ($method === 'POST' && ($action === 'save' || $action === 'copy')) {
 
   if ($action === 'copy') {
     if (!valid_date($input['from'])) out(array('error' => "date source invalide"), 400);
-    $req = "SELECT zones FROM plans WHERE date_plan = '" . $input['from'] . "' LIMIT 1";
+    $req = "SELECT zones FROM pl_plans WHERE date_plan = '" . $input['from'] . "' LIMIT 1";
     $res = mysqli_query($link, $req);
     $row = mysqli_fetch_assoc($res);
     if (!$row) out(array('error' => 'aucun plan sauvegardé pour cette date'), 404);
-    $req = "REPLACE INTO plans (date_plan, zones, time_modif) VALUES ('" .
+    $req = "REPLACE INTO pl_plans (date_plan, zones, time_modif) VALUES ('" .
       $input['date'] . "', '" . addslashes($row['zones']) . "', " . time() . ")";
     if (!mysqli_query($link, $req)) out(array('error' => 'erreur base'), 500);
     out(array('ok' => true, 'date' => $input['date']));
