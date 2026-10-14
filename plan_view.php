@@ -65,16 +65,6 @@ $next = date('Y-m-d', $ts + 86400);
   svg { width: 100%; height: auto; display: block; border-radius: 8px;
         box-shadow: 0 2px 10px rgba(31,39,51,.12); background: #fff; }
 
-  .legend {
-    max-width: 900px; margin: 0 auto; padding: 4px 12px 16px;
-    display: flex; flex-wrap: wrap; gap: 8px;
-  }
-  .legend-item {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #fff; border: 1px solid #dce1e8; border-radius: 14px;
-    padding: 4px 12px; font-size: 12.5px;
-  }
-  .sw { width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); }
   .empty {
     text-align: center; color: #6b7686; padding: 40px 20px; font-size: 14px;
   }
@@ -100,19 +90,14 @@ $next = date('Y-m-d', $ts + 86400);
 <?php foreach($zones as $z): ?>
       <rect x="<?=$z['x']?>" y="<?=$z['y']?>" width="<?=$z['w']?>" height="<?=$z['h']?>"
             fill="<?=$z['color']?>" fill-opacity="0.45" stroke="<?=$z['color']?>" stroke-width="0.75" rx="4"/>
+      <text x="<?=$z['x'] + $z['w'] / 2?>" y="<?=$z['y'] + $z['h'] / 2 + 4.5?>"
+            text-anchor="middle" font-size="13" font-weight="400" fill="#1f2733"
+            pointer-events="none"><?=htmlspecialchars($z['name'])?></text>
 <?php endforeach; ?>
     </svg>
 <?php endif; ?>
   </div>
 </main>
-
-<?php if(count($zones) > 0): ?>
-<div class="legend">
-<?php foreach($zones as $z): ?>
-  <span class="legend-item"><span class="sw" style="background:<?=$z['color']?>"></span><?=htmlspecialchars($z['name'])?></span>
-<?php endforeach; ?>
-</div>
-<?php endif; ?>
 
 </body>
 </html>
