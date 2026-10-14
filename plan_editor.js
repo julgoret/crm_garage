@@ -3,7 +3,7 @@
 (function () {
   var NS = "http://www.w3.org/2000/svg";
   var svg = document.getElementById("plan");
-  var W = 1000, H = 700;
+  var W = 1000, H = 692; // proportions du fond de plan définitif (4000×2766)
   var YEAR = new Date().getFullYear();
   var dayIndex = dayOfYear(new Date());
   // jour initial depuis l'URL (?date=YYYY-MM-DD ou plan/YYYY-MM-DD via rewrite)
@@ -187,29 +187,19 @@
     s.textContent = msg;
   }
 
-  // ---------- dessin (fond commun identique à plan_editor.html) ----------
-  function genericPlan() {
-    var s = "";
-    s += '<defs><pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">';
-    s += '<path d="M25 0 L0 0 0 25" fill="none" stroke="#eef1f5" stroke-width="1"/></pattern></defs>';
-    s += '<rect width="' + W + '" height="' + H + '" fill="#fafbfd"/>';
-    s += '<rect width="' + W + '" height="' + H + '" fill="url(#grid)"/>';
-    s += '<rect x="20" y="20" width="' + (W - 40) + '" height="' + (H - 40) + '" fill="none" stroke="#9aa3af" stroke-width="6" stroke-linejoin="round"/>';
-    s += '<line x1="440" y1="20" x2="440" y2="300" stroke="#c3cad4" stroke-width="3"/>';
-    s += '<line x1="700" y1="20" x2="700" y2="360" stroke="#c3cad4" stroke-width="3"/>';
-    s += '<line x1="20"  y1="360" x2="700" y2="360" stroke="#c3cad4" stroke-width="3"/>';
-    s += '<line x1="440" y1="300" x2="980" y2="300" stroke="#c3cad4" stroke-width="3"/>';
-    s += '<line x1="250" y1="360" x2="250" y2="680" stroke="#c3cad4" stroke-width="3"/>';
-    s += '<rect x="770" y="300" width="120" height="10" fill="#fafbfd" stroke="#9aa3af" stroke-width="2"/>';
-    s += '<text x="830" y="330" text-anchor="middle" font-size="16" fill="#6b7686">ENTRÉE</text>';
-    return s;
+  // ---------- dessin (fond de plan définitif : fond_plan.png, commun à tous les jours) ----------
+  function drawBackground() {
+    var img = document.createElementNS(NS, "image");
+    img.setAttribute("href", "./fond_plan.png");
+    img.setAttribute("x", 0); img.setAttribute("y", 0);
+    img.setAttribute("width", W); img.setAttribute("height", H);
+    img.setAttribute("preserveAspectRatio", "none");
+    svg.appendChild(img);
   }
 
   function draw() {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
-    var g = document.createElementNS(NS, "g");
-    g.innerHTML = genericPlan();
-    svg.appendChild(g);
+    drawBackground();
 
     zones.forEach(function (z, i) {
       var grp = document.createElementNS(NS, "g");
