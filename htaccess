@@ -5,3 +5,9 @@ AuthType Basic
 AuthUserFile "/home/onekeybl/www/gm_compta/crm_garage/.htpasswd"
 
 Require valid-user
+
+# URLs claires pour l'éditeur de plans : /plan/2026-07-01 -> plan.php?date=2026-07-01
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^plan/([0-9]{4}-[0-9]{2}-[0-9]{2})$ plan.php?date=$1 [L,QSA]
+</IfModule>

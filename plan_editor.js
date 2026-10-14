@@ -6,6 +6,15 @@
   var W = 1000, H = 700;
   var YEAR = new Date().getFullYear();
   var dayIndex = dayOfYear(new Date());
+  // jour initial depuis l'URL (?date=YYYY-MM-DD ou plan/YYYY-MM-DD via rewrite)
+  if (window.PLAN_INIT_DATE) {
+    var d0 = new Date(window.PLAN_INIT_DATE + "T12:00:00");
+    if (!isNaN(d0)) {
+      YEAR = d0.getFullYear();
+      dayIndex = dayOfYear(d0);
+      syncSliderBounds();
+    }
+  }
   var zones = [];
   var savedDates = {};
   var selected = -1;
@@ -104,16 +113,34 @@
   }
 
   // ---------- barre de jour ----------
+  function syncSliderBounds() {
+    var slider = el("daySlider");
+    slider.min = 0;
+    slider.max = daysInYear(YEAR) - 1;
+  }
+
+  function daysInYear(y) {
+    return ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) ? 366 : 365;
+  }
+
+  function syncUrl() {
+    var date = iso(dateFromIndex(dayIndex));
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", "./plan.php?date=" + date);
+    }
+  }
+
   function syncDayBar() {
     var d = dateFromIndex(dayIndex);
     el("dayLabel").textContent = longLabel(d);
     el("dayDate").value = iso(d);
     el("daySlider").value = dayIndex;
     document.title = "Plan du " + longLabel(d) + " — Garage Moderne";
+    syncUrl();
   }
 
   function gotoIndex(i, force) {
-    i = Math.max(0, Math.min(364, i));
+    i = Math.max(0, Math.min(daysInYear(YEAR) - 1, i));
     if (!force && i === dayIndex) return;
     if (dirty && !confirm("Des modifications non enregistrées pour ce jour seront perdues. Continuer ?")) return;
     dayIndex = i;
@@ -140,7 +167,9 @@
 
   el("dayDate").addEventListener("change", function () {
     var d = new Date(this.value + "T12:00:00");
-    if (isNaN(d) || d.getFullYear() !== YEAR) { setStatus("err", "date hors " + YEAR); return; }
+    if (isNaN(d)) { setStatus("err", "date invalide"); return; }
+    YEAR = d.getFullYear();
+    syncSliderBounds();
     gotoIndex(dayOfYear(d));
   });
 
@@ -360,6 +389,7 @@
   });
 
   // ---------- init ----------
+  syncSliderBounds();
   syncDayBar();
   loadRange().then(function () { paintSliderTicks(); });
   loadDay();

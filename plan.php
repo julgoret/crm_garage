@@ -2,6 +2,12 @@
 ini_set('display_errors', 0);
 include_once('./connect_inc.php');
 header('Content-Type: text/html; charset=utf-8');
+
+// jour initial depuis l'URL : ?date=YYYY-MM-DD (ou plan/YYYY-MM-DD via rewrite)
+$init_date = "";
+if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) && strtotime($_GET['date']) !== false) {
+  $init_date = $_GET['date'];
+}
 ?><!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -82,6 +88,7 @@ header('Content-Type: text/html; charset=utf-8');
   </div>
 </div>
 
+<script>window.PLAN_INIT_DATE = <?= json_encode($init_date) ?>;</script>
 <script src="./plan_editor.js"></script>
 </body>
 </html>
