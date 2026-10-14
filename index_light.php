@@ -119,7 +119,12 @@ while($row_m  = mysqli_fetch_assoc($res_m))
 
   <tr id='i".$row_m['id']."'>
     <td>".$row_m['id']."</td>
-    <td>".date('d/m/Y', $row_m['time_beg'] )."<br/>".$row_m['title_event']."<br/><a href='index_light.php?id_ev=".$row_m['id']."'>[MODIFIER]</a></td>
+    <td>".date('d/m/Y', $row_m['time_beg'] )."<br/>".$row_m['title_event']."<br/><a href='index_light.php?id_ev=".$row_m['id']."'>[MODIFIER]</a>";
+  if($row_m['time_beg'] > 1)
+  {
+    $str_main .= "<br/><a href='plan.php?date=".date('Y-m-d', $row_m['time_beg'])."'>[PLAN DU JOUR]</a>";
+  }
+  $str_main .= "</td>
     <td>".$str_types."</td>
     <td>
       <input type='hidden' name='id' value='".$row_m['id']."'>
@@ -239,7 +244,12 @@ Kangoo :
 Scenic";}
 
   $str_pop = "<div class='pop'>";
-  $str_pop .= "<div style='float:right;padding: 5px;'><a href='./index_light.php".$_SESSION['last_search']."'><b>[FERMER]</b></a><a href='./printable_todo_light.php?id_ev=".$row_data_event['id']."'><b>[IMPRIMER]</b></a></div>";
+  $str_pop .= "<div style='float:right;padding: 5px;'><a href='./index_light.php".$_SESSION['last_search']."'><b>[FERMER]</b></a><a href='./printable_todo_light.php?id_ev=".$row_data_event['id']."'><b>[IMPRIMER]</b></a>";
+  if($row_data_event['time_beg'] > 1)
+  {
+    $str_pop .= "<a href='./plan.php?date=".date('Y-m-d', $row_data_event['time_beg'])."'><b>[PLAN DU JOUR]</b></a>";
+  }
+  $str_pop .= "</div>";
 
   $str_pop .= "<div style='float:left;padding: 5px;'>";
   $str_pop .= "<form action='valid_event_light_2.php' method='post' enctype='multipart/form-data'><input type='hidden' name='id' value='".$row_data_event['id']."'>";
