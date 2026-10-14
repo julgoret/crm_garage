@@ -354,7 +354,7 @@
   // décale la scène sous la barre fixe (recalculé au resize)
   function layout() {
     var bar = document.getElementById("topbar");
-    var scene = document.getElementById("svgWrap");
+    var scene = document.getElementById("scene");
     scene.style.top = bar.offsetHeight + "px";
   }
   window.addEventListener("resize", layout);

@@ -63,9 +63,9 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
   #zColor { height: 32px; padding: 2px; cursor: pointer; }
   #copyFrom { font-size: 12px; }
 
-  /* la scène passe sous la barre fixe */
-  #scene { position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
-  #svgWrap { position: absolute; inset: 0; }
+  /* la scène occupe tout l'espace sous la barre fixe */
+  #scene { position: fixed; left: 0; right: 0; bottom: 0; }
+  #svgWrap { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
   svg { width: 100%; height: 100%; display: block; }
 </style>
 </head>
@@ -102,6 +102,6 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
 </div>
 
 <script>window.PLAN_INIT_DATE = <?= json_encode($init_date) ?>;</script>
-<script src="./plan_editor.js?v=2"></script>
+<script src="./plan_editor.js?v=3"></script>
 </body>
 </html>
