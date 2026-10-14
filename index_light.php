@@ -528,6 +528,7 @@ Scenic";}
     <meta charset="utf-8">
     <title>CRM Suivi événements</title>
     <link rel="stylesheet" href="./admin.css">
+    <script src="./admin.js" defer></script>
     <script src="https://cdn.tiny.cloud/1/qeu73mhxuefzsc0qgh0t3velh1upnfz8mthf5wdvb421d3w1/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
       tinymce.init({

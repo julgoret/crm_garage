@@ -263,6 +263,7 @@ while($row_m  = mysqli_fetch_assoc($res_m))
     <meta charset="utf-8">
     <title>CRM Suivi flux entrants</title>
     <link rel="stylesheet" href="./admin.css">
+    <script src="./admin.js" defer></script>
   </head>
   <body>
 <?php
