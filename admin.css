@@ -277,3 +277,45 @@ details.insert-box .insert-form {
 }
 
 details.insert-box .insert-form input[type="text"] { flex: 1; }
+
+/* ---------- index_light.php : barre de tri compacte, lignes compactes, puces d'actions ---------- */
+
+.tri-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin: -6px 0 14px;
+}
+.tri-bar select { width: auto; font-size: 13px; padding: 5px 8px; }
+.tri-bar input[type="radio"] { margin-right: 4px; }
+.tri-bar label { cursor: pointer; font-size: 13px; }
+.tri-sep { width: 1px; height: 22px; background: var(--border); }
+
+.table-light td { padding: 5px 8px; vertical-align: middle; }
+.table-light textarea { min-height: 0; }
+
+.td-actions { white-space: nowrap; }
+
+.btn-line, .btn-line:visited {
+  display: inline-block;
+  background: #eef2f7; color: var(--text);
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 12px; font-weight: 600;
+  text-decoration: none; line-height: 1.4;
+}
+.btn-line:hover { background: #e2ecf5; text-decoration: none; }
+
+.btn-valider {
+  background: var(--ok-accent, #2f9e44); color: #fff; border-color: transparent;
+  cursor: pointer;
+}
+.btn-valider:hover { background: #268a3b; }
+
+.btn-arch {
+  background: #fff4d6; color: #92640a; border-color: #f0dcae;
+}
+.btn-arch:hover { background: #ffeab5; }
+
+.btn-suppr {
+  background: #ffe3e3; color: var(--danger); border-color: #f2c4c4;
+}
+.btn-suppr:hover { background: #ffd6d6; }

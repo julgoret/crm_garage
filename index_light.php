@@ -114,37 +114,31 @@ while($row_m  = mysqli_fetch_assoc($res_m))
   $str_types .= "</select>";
 
 
-  $str_main .= "<form action ='tr_upd.php'  method='post'>";
-  $str_main .= "
-
-  <tr id='i".$row_m['id']."'>
+  $val_rappel = ($row_m['time_rappel'] > 1) ? $row_m['time_rappel'] : "";
+  $str_main .= "  <tr id='i".$row_m['id']."'>
     <td>".$row_m['id']."</td>
-    <td>".date('d/m/Y', $row_m['time_beg'] )."<br/>".$row_m['title_event']."<br/><a href='index_light.php?id_ev=".$row_m['id']."'>[MODIFIER]</a>";
+    <td>".date('d/m/Y', $row_m['time_beg'] )."<br/>".stripslashes($row_m['title_event'])."</td>";
+  $str_main .= "    <td class='td-actions'><a class='btn-line' href='index_light.php?id_ev=".$row_m['id']."'>Modifier</a></td>";
   if($row_m['time_beg'] > 1)
   {
-    $str_main .= "<br/><a href='plan.php?date=".date('Y-m-d', $row_m['time_beg'])."'>[PLAN DU JOUR]</a>";
+    $str_main .= "    <td class='td-actions'><a class='btn-line' href='plan.php?date=".date('Y-m-d', $row_m['time_beg'])."'>Plan</a></td>";
   }
-  $str_main .= "</td>
-    <td>".$str_types."</td>
-    <td>
+  else
+  {
+    $str_main .= "    <td class='td-actions'></td>";
+  }
+  $str_main .= "    <td>".$str_types."</td>
+    <td class='td-actions'>
+      <form action='tr_upd.php' method='post' class='form-line'>
       <input type='hidden' name='id' value='".$row_m['id']."'>
       <input type='hidden' name='name' value=\"".$row_m['name']."\">
       <input type='hidden' name='mail' value='".$row_m['mail']."'>
       <input type='hidden' name='tel' value='".$row_m['tel']."'>
       <input type='hidden' name='etat' value='".$row_m['fkid_etat']."'>
-      <textarea name ='comment'>".stripslashes($row_m['comment'])."</textarea>
-    ";
-    if($row_m['time_rappel']>1)
-    {
-      $val_rappel = $row_m['time_rappel'];}
-    else {
-      $val_rappel = "";
-    }
-    $str_main .= "
-
-    <br/>Date relance <input type='text' name='time_rdv' value='".date('Y-m-d', $val_rappel)."'></td>
-    <td><input type='hidden' name='id' value='".$row_m['id']."'><input type='submit' value ='VALIDER'>";
-
+      <input type='hidden' name='comment' value=\"".str_replace('"', '&quot;', stripslashes($row_m['comment']))."\">
+      <input type='hidden' name='time_rdv' value='".date('Y-m-d', $val_rappel)."'>
+      <input type='hidden' name='from' value='light'>
+      <input type='submit' class='btn-line btn-valider' value='Valider'>";
     if($row_m['archive'] == 0)
     {
       $str_main_ar_txt = "ARCHIVER";
@@ -155,12 +149,10 @@ while($row_m  = mysqli_fetch_assoc($res_m))
       $str_main_ar_txt = "D&Eacute;SARCHIVER";
       $val_archive = 0;
     }
-
-    $str_main .= "<br/><a href='./del_line.php?id=".$row_m['id']."&val=".$val_archive."'>";
-
-    $str_main .= $str_main_ar_txt."</a><br/><a href='./del_def.php?id=".$row_m['id']."'>SUPPRIMER</a></td>
+    $str_main .= " <a class='btn-line btn-arch' href='./del_line.php?id=".$row_m['id']."&val=".$val_archive."'>".$str_main_ar_txt."</a> <a class='btn-line btn-suppr' href='./del_def.php?id=".$row_m['id']."'>Supprimer</a>
+      </form>
+    </td>
   </tr>";
-  $str_main .= "</form>";
 }
 
 // popup suivi event
@@ -494,23 +486,22 @@ echo $str_pop;
     <input type='submit' value ='Insérer'>
   </form>
 </details>
-<h3>TRIER<h3>
-<form action='' method="get">
-  <table border="1">
-    <tr>
-
-      <td>TYPE : <?=$str_types_search?></td>
-      <td>ACTIFS <input type="radio" name="archives" value="0" <?=$selecta0?>><br/>ARCHIVES <input type="radio" name="archives" value="1" <?=$selecta1?>><br/>TOUS <input type="radio" name="archives" value="2" <?=$selecta2?>></td>
-      <td><input type='submit' value ='TRIER'></td>
-    </tr>
-  </table>
+<form action='' method="get" class="tri-bar">
+  <span class="tri-label">Type : <?=$str_types_search?></span>
+  <span class="tri-sep"></span>
+  <span class="tri-label"><label><input type="radio" name="archives" value="0" <?=$selecta0?>> Actifs</label></span>
+  <span class="tri-label"><label><input type="radio" name="archives" value="1" <?=$selecta1?>> Archives</label></span>
+  <span class="tri-label"><label><input type="radio" name="archives" value="2" <?=$selecta2?>> Tous</label></span>
+  <input type='submit' value ='Trier'>
 </form>
 <?php
-echo "<table border='1'><tr>
+echo "<table border='1' class='table-light'><tr>
   <td>ID</td>
   <td>&Eacutevénement</td>
+  <td>Modifier</td>
+  <td>Plan</td>
   <td>type</td>
-  <td>Suivi</td>
+  <td>Actions</td>
 </tr>".$str_main."</table>";
 
 ?>
