@@ -30,6 +30,32 @@ $days = array("dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi")
 $months = array("janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre");
 $label = $days[date("w", $ts)]." ".date("j", $ts)." ".$months[date("n", $ts) - 1]." ".date("Y", $ts);
 
+// découpe du titre d'un bloc en lignes tenant dans sa largeur (unités viewBox)
+// estimation : ~0.62 * taille de police de largeur moyenne par caractère
+function wrap_lines($str, $max_width, $font_size = 13)
+{
+  $max_chars = max(4, (int)floor($max_width / ($font_size * 0.62)));
+  $words = preg_split('/\s+/', trim($str));
+  $lines = array();
+  $line = "";
+  foreach($words as $w)
+  {
+    $test = ($line === "") ? $w : $line." ".$w;
+    if(mb_strlen($test) > $max_chars && $line !== "")
+    {
+      $lines[] = $line;
+      $line = $w;
+    }
+    else
+    {
+      $line = $test;
+    }
+  }
+  if($line !== "") { $lines[] = $line; }
+  if(empty($lines)) { $lines = array(""); }
+  return $lines;
+}
+
 // date précédente/suivante pour la navigation
 $prev = date('Y-m-d', $ts - 86400);
 $next = date('Y-m-d', $ts + 86400);
@@ -90,9 +116,15 @@ $next = date('Y-m-d', $ts + 86400);
 <?php foreach($zones as $z): ?>
       <rect x="<?=$z['x']?>" y="<?=$z['y']?>" width="<?=$z['w']?>" height="<?=$z['h']?>"
             fill="<?=$z['color']?>" fill-opacity="0.45" stroke="<?=$z['color']?>" stroke-width="0.75" rx="4"/>
-      <text x="<?=$z['x'] + $z['w'] / 2?>" y="<?=$z['y'] + $z['h'] / 2 + 4.5?>"
-            text-anchor="middle" font-size="13" font-weight="400" fill="#1f2733"
-            pointer-events="none"><?=htmlspecialchars($z['name'])?></text>
+      <text text-anchor="middle" font-size="13" font-weight="400" fill="#1f2733" pointer-events="none">
+<?php
+      $lines = wrap_lines($z['name'], $z['w'] - 12);
+      $base_y = $z['y'] + $z['h'] / 2 + 4.5 - (count($lines) - 1) * 8;
+      foreach($lines as $k => $ln):
+?>
+        <tspan x="<?=$z['x'] + $z['w'] / 2?>" y="<?=$base_y + $k * 16?>"><?=htmlspecialchars($ln)?></tspan>
+<?php endforeach; ?>
+      </text>
 <?php endforeach; ?>
     </svg>
 <?php endif; ?>
