@@ -167,6 +167,7 @@ while($row = mysqli_fetch_assoc($res))
     white-space: nowrap;
   }
   .ev-plan-link:hover { background: var(--accent-dark); text-decoration: none; }
+  .ev-plan-link:visited, .ev-plan-link:visited:hover { color: #fff; }
   .ev-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
   .ev-tab { position: relative; }
   .ev-tab summary {
