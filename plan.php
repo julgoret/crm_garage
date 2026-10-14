@@ -97,7 +97,7 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
 
 <div id="scene">
   <div id="svgWrap">
-    <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 692" preserveAspectRatio="xMidYMid meet"></svg>
+    <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 405" preserveAspectRatio="xMidYMid meet"></svg>
   </div>
 </div>
 

@@ -3,7 +3,7 @@
 (function () {
   var NS = "http://www.w3.org/2000/svg";
   var svg = document.getElementById("plan");
-  var W = 1000, H = 692; // proportions du fond de plan définitif (4000×2766)
+  var W = 1000, H = 405; // proportions du fond de plan définitif (4000×1621)
   var YEAR = new Date().getFullYear();
   var dayIndex = dayOfYear(new Date());
   // jour initial depuis l'URL (?date=YYYY-MM-DD ou plan/YYYY-MM-DD via rewrite)
