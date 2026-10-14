@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Éditeur de plan — zones SVG</title>
+<style>
+  :root {
+    --bg: #f2f4f8; --surface: #fff; --border: #dce1e8;
+    --text: #1f2733; --muted: #6b7686; --accent: #0f6db3; --danger: #d64545;
+    --radius: 8px; --shadow: 0 1px 3px rgba(31,39,51,.08), 0 4px 14px rgba(31,39,51,.06);
+  }
+  * { box-sizing: border-box; font-family: "Segoe UI", system-ui, Arial, sans-serif; }
+  body { margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text); font-size: 14px; }
+  aside { width: 320px; min-width: 320px; background: var(--surface); border-right: 1px solid var(--border); padding: 16px; overflow-y: auto; }
+  h1 { font-size: 16px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 12px; margin-bottom: 16px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 20px 0 8px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+  input[type="text"], input[type="color"], select, input[type="number"] {
+    width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; background: #fff;
+  }
+  input[type="color"] { height: 34px; padding: 2px; cursor: pointer; }
+  button {
+    background: var(--accent); color: #fff; border: none; border-radius: 6px;
+    padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; margin: 4px 4px 0 0;
+  }
+  button:hover { filter: brightness(.9); }
+  button.secondary { background: #e7edf4; color: var(--text); }
+  button.danger { background: var(--danger); }
+  #scene { flex: 1; position: relative; overflow: hidden; }
+  #svgWrap { position: absolute; inset: 0; }
+  svg { width: 100%; height: 100%; display: block; cursor: default; }
+  .rect { cursor: move; }
+  .rect.selected { stroke-dasharray: 6 3; stroke-width: 2; }
+  .handle { fill: #fff; stroke: var(--accent); stroke-width: 1.5; cursor: nwse-resize; }
+  .zone-list { list-style: none; margin: 0; padding: 0; }
+  .zone-list li {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 4px; cursor: pointer; font-size: 12px;
+  }
+  .zone-list li:hover { background: #f0f6fc; }
+  .zone-list li.active { border-color: var(--accent); background: #eaf3fb; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.2); flex: none; }
+  .zname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .zinfo { color: var(--muted); font-size: 11px; flex: none; }
+  textarea { width: 100%; height: 140px; font-family: monospace; font-size: 11px; border: 1px solid var(--border); border-radius: 6px; padding: 8px; resize: vertical; }
+  .hint { font-size: 11px; color: var(--muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<aside>
+  <h1>Éditeur de plan</h1>
+  <div class="sub">Zones SVG : déplacer, redimensionner, colorer</div>
+
+  <h2>Fond</h2>
+  <input type="file" id="imgFile" accept="image/*">
+  <label>ou URL de l'image</label>
+  <input type="text" id="imgUrl" placeholder="plan.png (laisser vide = plan générique)">
+
+  <h2>Zone sélectionnée</h2>
+  <label>Nom</label>
+  <input type="text" id="zName" placeholder="ex : Scène">
+  <label>Couleur (hex)</label>
+  <input type="color" id="zColor" value="#4da3ff">
+  <label>Position X / Y</label>
+  <div style="display:flex; gap:8px">
+    <input type="number" id="zX"><input type="number" id="zY">
+  </div>
+  <label>Dimensions L / H (px)</label>
+  <div style="display:flex; gap:8px">
+    <input type="number" id="zW"><input type="number" id="zH">
+  </div>
+  <button id="addRect">+ Nouvelle zone</button>
+  <button id="delRect" class="danger">Supprimer</button>
+
+  <h2>Zones</h2>
+  <ul class="zone-list" id="zoneList"></ul>
+
+  <h2>Export</h2>
+  <button id="exportJson" class="secondary">Exporter JSON</button>
+  <button id="exportSvg" class="secondary">Exporter SVG</button>
+  <button id="exportPng" class="secondary">Exporter PNG</button>
+  <textarea id="exportOut" placeholder="Résultat de l'export…"></textarea>
+
+  <p class="hint">
+    Glisser l'intérieur d'un rectangle pour le déplacer, glisser les poignées
+    (coins) pour le redimensionner. Le fond du plan est cliquable pour
+    désélectionner. Double-clic sur une zone pour renommer.
+  </p>
+</aside>
+
+<div id="scene">
+  <div id="svgWrap">
+    <svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+</div>
+
+<script>
+(function () {
+  var NS = "http://www.w3.org/2000/svg";
+  var svg = document.getElementById("plan");
+  var W = 1000, H = 700;
+  var zones = [
+    { name: "Scène",        x: 60,  y: 60,  w: 260, h: 140, color: "#ff6b6b" },
+    { name: "Bar",          x: 60,  y: 240, w: 140, h: 100, color: "#ffa94d" },
+    { name: "Restauration", x: 220, y: 240, w: 200, h: 160, color: "#ffd43b" },
+    { name: "Espace expo",  x: 460, y: 60,  w: 220, h: 220, color: "#69db7c" },
+    { name: "Cantine",      x: 720, y: 60,  w: 220, h: 160, color: "#4dabf7" },
+    { name: "Entrance",     x: 720, y: 260, w: 220, h: 80,  color: "#b197fc" },
+    { name: "Loges",        x: 60,  y: 440, w: 180, h: 200, color: "#f783ac" },
+    { name: "Régie",        x: 280, y: 440, w: 140, h: 120, color: "#63e6be" }
+  ];
+  var selected = -1;
+  var handles = []; // poignées de redimensionnement
+  var imgHref = null; // fond personnalisé
+
+  // ---------- fond de plan ----------
+  function genericPlan() {
+    var s = "";
+    s += '<defs><pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">';
+    s += '<path d="M25 0 L0 0 0 25" fill="none" stroke="#eef1f5" stroke-width="1"/></pattern></defs>';
+    s += '<rect width="' + W + '" height="' + H + '" fill="#fafbfd"/>';
+    s += '<rect width="' + W + '" height="' + H + '" fill="url(#grid)"/>';
+    // mur extérieur
+    s += '<rect x="20" y="20" width="' + (W - 40) + '" height="' + (H - 40) + '" fill="none" stroke="#9aa3af" stroke-width="6" stroke-linejoin="round"/>';
+    // cloisons intérieures indicatives
+    s += '<line x1="440" y1="20" x2="440" y2="300" stroke="#c3cad4" stroke-width="3"/>';
+    s += '<line x1="700" y1="20" x2="700" y2="360" stroke="#c3cad4" stroke-width="3"/>';
+    s += '<line x1="20"  y1="360" x2="700" y2="360" stroke="#c3cad4" stroke-width="3"/>';
+    s += '<line x1="440" y1="300" x2="980" y2="300" stroke="#c3cad4" stroke-width="3"/>';
+    s += '<line x1="250" y1="360" x2="250" y2="680" stroke="#c3cad4" stroke-width="3"/>';
+    // entrée
+    s += '<rect x="770" y="300" width="120" height="10" fill="#fafbfd" stroke="#9aa3af" stroke-width="2"/>';
+    s += '<text x="830" y="330" text-anchor="middle" font-size="16" fill="#6b7686">ENTRÉE</text>';
+    return s;
+  }
+
+  function draw() {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+    // fond
+    if (imgHref) {
+      var img = document.createElementNS(NS, "image");
+      img.setAttribute("href", imgHref);
+      img.setAttribute("x", 0); img.setAttribute("y", 0);
+      img.setAttribute("width", W); img.setAttribute("height", H);
+      img.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      svg.appendChild(img);
+    } else {
+      var g = document.createElementNS(NS, "g");
+      g.innerHTML = genericPlan();
+      svg.appendChild(g);
+    }
+
+    zones.forEach(function (z, i) {
+      var grp = document.createElementNS(NS, "g");
+      var r = document.createElementNS(NS, "rect");
+      r.setAttribute("x", z.x); r.setAttribute("y", z.y);
+      r.setAttribute("width", z.w); r.setAttribute("height", z.h);
+      r.setAttribute("fill", z.color);
+      r.setAttribute("fill-opacity", "0.45");
+      r.setAttribute("stroke", z.color);
+      r.setAttribute("stroke-width", i === selected ? 2 : 1.5);
+      r.setAttribute("class", "rect" + (i === selected ? " selected" : ""));
+      grp.appendChild(r);
+
+      var label = document.createElementNS(NS, "text");
+      label.setAttribute("x", z.x + z.w / 2);
+      label.setAttribute("y", z.y + z.h / 2 - 2);
+      label.setAttribute("text-anchor", "middle");
+      label.setAttribute("font-size", "14");
+      label.setAttribute("font-weight", "600");
+      label.setAttribute("fill", "#1f2733");
+      label.setAttribute("pointer-events", "none");
+      label.textContent = z.name;
+      grp.appendChild(label);
+
+      var dims = document.createElementNS(NS, "text");
+      dims.setAttribute("x", z.x + z.w / 2);
+      dims.setAttribute("y", z.y + z.h / 2 + 14);
+      dims.setAttribute("text-anchor", "middle");
+      dims.setAttribute("font-size", "11");
+      dims.setAttribute("fill", "#445");
+      dims.setAttribute("pointer-events", "none");
+      dims.textContent = Math.round(z.w) + " × " + Math.round(z.h);
+      grp.appendChild(dims);
+
+      grp.addEventListener("mousedown", function (e) { startDrag(e, i, null); });
+      grp.addEventListener("dblclick", function () { renameZone(i); });
+      svg.appendChild(grp);
+    });
+
+    // poignées de la zone sélectionnée
+    handles = [];
+    if (selected >= 0) {
+      var z = zones[selected];
+      [[z.x, z.y], [z.x + z.w, z.y], [z.x, z.y + z.h], [z.x + z.w, z.y + z.h]].forEach(function (p, k) {
+        var h = document.createElementNS(NS, "rect");
+        h.setAttribute("x", p[0] - 6); h.setAttribute("y", p[1] - 6);
+        h.setAttribute("width", 12); h.setAttribute("height", 12);
+        h.setAttribute("class", "handle");
+        h.dataset.corner = k;
+        h.addEventListener("mousedown", function (e) { startDrag(e, selected, k); });
+        svg.appendChild(h);
+        handles.push(h);
+      });
+    }
+    syncPanel();
+    renderList();
+  }
+
+  // ---------- interactions ----------
+  function svgPoint(e) {
+    var pt = svg.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  var drag = null;
+
+  function startDrag(e, i, corner) {
+    e.preventDefault();
+    e.stopPropagation();
+    selected = i;
+    var z = zones[i];
+    var p = svgPoint(e);
+    drag = { i: i, corner: corner, sx: p.x, sy: p.y, ox: z.x, oy: z.y, ow: z.w, oh: z.h };
+    draw();
+  }
+
+  svg.addEventListener("mousedown", function (e) {
+    if (e.target === svg || e.target.tagName === "image") { selected = -1; draw(); }
+  });
+
+  window.addEventListener("mousemove", function (e) {
+    if (!drag) return;
+    var z = zones[drag.i];
+    var p = svgPoint(e);
+    var dx = p.x - drag.sx, dy = p.y - drag.sy;
+    if (drag.corner === null) {
+      z.x = Math.round(drag.ox + dx);
+      z.y = Math.round(drag.oy + dy);
+    } else {
+      var k = drag.corner;
+      var x1 = drag.ox, y1 = drag.oy, x2 = drag.ox + drag.ow, y2 = drag.oy + drag.oh;
+      if (k === 0) { x1 += dx; y1 += dy; }
+      if (k === 1) { x2 += dx; y1 += dy; }
+      if (k === 2) { x1 += dx; y2 += dy; }
+      if (k === 3) { x2 += dx; y2 += dy; }
+      z.x = Math.round(Math.min(x1, x2)); z.y = Math.round(Math.min(y1, y2));
+      z.w = Math.round(Math.max(10, Math.abs(x2 - x1)));
+      z.h = Math.round(Math.max(10, Math.abs(y2 - y1)));
+    }
+    updateLive();
+  });
+
+  window.addEventListener("mouseup", function () {
+    if (drag) { drag = null; draw(); }
+  });
+
+  // mise à jour pendant le drag
+  function updateLive() { draw(); }
+
+  function renameZone(i) {
+    var n = prompt("Nom de la zone :", zones[i].name);
+    if (n !== null && n.trim() !== "") { zones[i].name = n.trim(); draw(); }
+  }
+
+  // ---------- panneau ----------
+  var el = function (id) { return document.getElementById(id); };
+
+  function syncPanel() {
+    var on = selected >= 0;
+    ["zName", "zColor", "zX", "zY", "zW", "zH", "delRect"].forEach(function (id) { el(id).disabled = !on; });
+    if (!on) { el("zName").value = ""; return; }
+    var z = zones[selected];
+    el("zName").value = z.name;
+    el("zColor").value = z.color;
+    el("zX").value = z.x; el("zY").value = z.y;
+    el("zW").value = z.w; el("zH").value = z.h;
+  }
+
+  function renderList() {
+    var ul = el("zoneList");
+    ul.innerHTML = "";
+    zones.forEach(function (z, i) {
+      var li = document.createElement("li");
+      if (i === selected) li.className = "active";
+      li.innerHTML = '<span class="swatch" style="background:' + z.color + '"></span>' +
+        '<span class="zname"></span><span class="zinfo">' + Math.round(z.w) + '×' + Math.round(z.h) + '</span>';
+      li.querySelector(".zname").textContent = z.name;
+      li.addEventListener("click", function () { selected = i; draw(); });
+      ul.appendChild(li);
+    });
+  }
+
+  ["zName", "zColor", "zX", "zY", "zW", "zH"].forEach(function (id) {
+    el(id).addEventListener("input", function () {
+      if (selected < 0) return;
+      var z = zones[selected];
+      if (id === "zName") z.name = el(id).value;
+      if (id === "zColor") z.color = el(id).value;
+      if (id === "zX") z.x = parseInt(el(id).value) || 0;
+      if (id === "zY") z.y = parseInt(el(id).value) || 0;
+      if (id === "zW") z.w = Math.max(10, parseInt(el(id).value) || 10);
+      if (id === "zH") z.h = Math.max(10, parseInt(el(id).value) || 10);
+      draw();
+    });
+  });
+
+  el("addRect").addEventListener("click", function () {
+    zones.push({ name: "Zone " + (zones.length + 1), x: 380, y: 460, w: 120, h: 80, color: "#4da3ff" });
+    selected = zones.length - 1;
+    draw();
+  });
+
+  el("delRect").addEventListener("click", function () {
+    if (selected < 0) return;
+    zones.splice(selected, 1);
+    selected = -1;
+    draw();
+  });
+
+  // ---------- fond image ----------
+  el("imgFile").addEventListener("change", function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function () { imgHref = fr.result; selected = -1; draw(); };
+    fr.readAsDataURL(f);
+  });
+
+  el("imgUrl").addEventListener("input", function () {
+    var v = this.value.trim();
+    if (v === "") { imgHref = null; draw(); }
+    else { imgHref = v; draw(); }
+  });
+
+  // ---------- exports ----------
+  function buildSvgString(embedImage) {
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '">';
+    if (imgHref && embedImage) {
+      s += '<image href="' + imgHref + '" x="0" y="0" width="' + W + '" height="' + H + '"/>';
+    } else {
+      s += genericPlan();
+    }
+    zones.forEach(function (z) {
+      s += '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h +
+           '" fill="' + z.color + '" fill-opacity="0.45" stroke="' + z.color + '" stroke-width="1.5" rx="4"/>';
+      s += '<text x="' + (z.x + z.w / 2) + '" y="' + (z.y + z.h / 2) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="14" font-weight="600" fill="#1f2733">' + z.name + '</text>';
+    });
+    s += "</svg>";
+    return s;
+  }
+
+  function download(data, filename, mime) {
+    var a = document.createElement("a");
+    a.href = data; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  el("exportJson").addEventListener("click", function () {
+    el("exportOut").value = JSON.stringify({ width: W, height: H, zones: zones }, null, 2);
+  });
+
+  el("exportSvg").addEventListener("click", function () {
+    var s = buildSvgString(true);
+    el("exportOut").value = s;
+    download(URL.createObjectURL(new Blob([s], { type: "image/svg+xml" })), "plan.svg");
+  });
+
+  el("exportPng").addEventListener("click", function () {
+    var s = buildSvgString(true);
+    var img = new Image();
+    var blob = new Blob([s], { type: "image/svg+xml" });
+    var url = URL.createObjectURL(blob);
+    img.onload = function () {
+      var c = document.createElement("canvas");
+      c.width = W; c.height = H;
+      c.getContext("2d").drawImage(img, 0, 0, W, H);
+      c.toBlob(function (b) {
+        var pu = URL.createObjectURL(b);
+        download(pu, "plan.png");
+        el("exportOut").value = "PNG téléchargé (plan.png)";
+      });
+    };
+    img.src = url;
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>
