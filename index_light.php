@@ -96,7 +96,7 @@ while($row_m  = mysqli_fetch_assoc($res_m))
 {
   // on extrait le type
   $str_form_id = "f".$row_m['id'];
-  $str_types = "<select name='types' form='".$str_form_id."' onchange=\"document.getElementById('".$str_form_id."').submit()\">";
+  $str_types = "<select name='types' form='".$str_form_id."'>";
 
   $req_ty="SELECT * FROM types";
   $res_ty  = mysqli_query($link, $req_ty);
@@ -128,7 +128,7 @@ while($row_m  = mysqli_fetch_assoc($res_m))
   {
     $str_main .= "    <td class='td-actions'></td>";
   }
-  $str_main .= "    <td>".$str_types."</td>
+  $str_main .= "    <td>".$str_types." <button type='submit' form='".$str_form_id."' class='btn-line btn-valider'>Valider</button></td>
     <td class='td-actions'>
       <form id='".$str_form_id."' action='tr_upd.php' method='post' class='form-line'>
       <input type='hidden' name='id' value='".$row_m['id']."'>
