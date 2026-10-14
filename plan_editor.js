@@ -186,6 +186,37 @@
     s.textContent = msg;
   }
 
+  // découpe un texte en lignes tenant dans maxWidth (px unités viewBox) et
+  // l'écrit dans l'élément <text> sous forme de tspan, centré verticalement
+  function wrapText(textEl, str, maxWidth, cx, cy) {
+    var fontSize = 13;
+    var lines = [];
+    var words = String(str).split(/\s+/);
+    var line = "";
+    // canvas de mesure hors écran
+    var meas = document.createElement("canvas").getContext("2d");
+    meas.font = fontSize + "px sans-serif";
+    words.forEach(function (w) {
+      var test = line ? line + " " + w : w;
+      if (meas.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = w;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    // un mot seul plus large que le bloc : on le garde tel quel
+    textEl.innerHTML = "";
+    lines.forEach(function (ln, k) {
+      var t = document.createElementNS(NS, "tspan");
+      t.setAttribute("x", textEl.getAttribute("x"));
+      t.setAttribute("y", cy + 4.5 - (lines.length - 1) * 8 + k * 16);
+      t.textContent = ln;
+      textEl.appendChild(t);
+    });
+  }
+
   // ---------- dessin (fond de plan définitif : fond_plan.png, commun à tous les jours) ----------
   function drawBackground() {
     var img = document.createElementNS(NS, "image");
@@ -208,19 +239,18 @@
       r.setAttribute("fill", z.color);
       r.setAttribute("fill-opacity", "0.45");
       r.setAttribute("stroke", z.color);
-      r.setAttribute("stroke-width", i === selected ? 2 : 1.5);
+      r.setAttribute("stroke-width", i === selected ? 1.5 : 0.75);
       r.setAttribute("class", "rect" + (i === selected ? " selected" : ""));
       grp.appendChild(r);
 
       var label = document.createElementNS(NS, "text");
       label.setAttribute("x", z.x + z.w / 2);
-      label.setAttribute("y", z.y + z.h / 2 - 2);
       label.setAttribute("text-anchor", "middle");
-      label.setAttribute("font-size", "14");
-      label.setAttribute("font-weight", "600");
+      label.setAttribute("font-size", "13");
+      label.setAttribute("font-weight", "400");
       label.setAttribute("fill", "#1f2733");
       label.setAttribute("pointer-events", "none");
-      label.textContent = z.name;
+      wrapText(label, z.name, z.w - 12, z.x + z.w / 2, z.y + z.h / 2);
       grp.appendChild(label);
 
       grp.addEventListener("mousedown", function (e) { startDrag(e, i, null); });
