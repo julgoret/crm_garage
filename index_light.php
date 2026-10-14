@@ -95,7 +95,8 @@ if(mysqli_num_rows($res_m)==0){//header('location:index.php');
 while($row_m  = mysqli_fetch_assoc($res_m))
 {
   // on extrait le type
-  $str_types = "<select name='types' onchange='this.form.submit()'>";
+  $str_form_id = "f".$row_m['id'];
+  $str_types = "<select name='types' form='".$str_form_id."' onchange=\"document.getElementById('".$str_form_id."').submit()\">";
 
   $req_ty="SELECT * FROM types";
   $res_ty  = mysqli_query($link, $req_ty);
@@ -129,7 +130,7 @@ while($row_m  = mysqli_fetch_assoc($res_m))
   }
   $str_main .= "    <td>".$str_types."</td>
     <td class='td-actions'>
-      <form action='tr_upd.php' method='post' class='form-line'>
+      <form id='".$str_form_id."' action='tr_upd.php' method='post' class='form-line'>
       <input type='hidden' name='id' value='".$row_m['id']."'>
       <input type='hidden' name='name' value=\"".$row_m['name']."\">
       <input type='hidden' name='mail' value='".$row_m['mail']."'>
