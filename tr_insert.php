@@ -10,7 +10,10 @@ $req_chk = "SELECT `id` FROM `prospects` ORDER BY `id` DESC";
 $res_chk = mysqli_query($link, $req_chk);
 $row_chk = mysqli_fetch_assoc($res_chk);
 ///echo $row_chk['id'];///echo $row_chk['id'];
-if($_POST['from']=="simple"){
+if($_POST['from']=="light"){
+  header("Location: ./index_light.php?id_ev=".$row_chk['id']);
+}
+elseif($_POST['from']=="simple"){
   header("Location: ./index0.php?id_ev=".$row_chk['id']);
   //echo $_POST['from']."XX";
 }else {

@@ -4,8 +4,8 @@ include_once('./connect_inc.php');
 
 
 // passage en session de la dernière requète pour ne pas perdre la recherche
-if(isset($_GET['search_types']) && isset($_GET['search_etats']) && isset($_GET['archives'])){
-  $_SESSION['last_search'] = "?search_types=".$_GET['search_types']."&search_etats=".$_GET['search_etats']."&archives=".$_GET['archives'];
+if(isset($_GET['search_types']) && isset($_GET['archives'])){
+  $_SESSION['last_search'] = "?search_types=".$_GET['search_types']."&archives=".$_GET['archives'];
 }
 else {
   $_SESSION['last_search'] = "";
@@ -47,29 +47,6 @@ while($row  = mysqli_fetch_assoc($res))
 
   $str_types_search .= "</select>";
 
-
-  // etat
-
-
-  $select_etat_search ="";
-  $str_etat_search = "<select name='search_etats'><option value='0'> -- </option>";
-  $req_et="SELECT * FROM etats ORDER BY ordo ASC";
-  $res_et  = mysqli_query($link, $req_et);
-  while($row_et  = mysqli_fetch_assoc($res_et))
-  {
-
-    if((isset($_GET['search_etats']))&&($row_et['id'] == $_GET['search_etats']))
-    {
-      $select_etat_search = "selected";
-    }
-    else {
-      $select_etat_search = "";
-    }
-
-    $str_etat_search .= "<option value='".$row_et['id']."' ".$select_etat_search.">".$row_et['name']."</option>";
-  }
-  $str_etat_search .= "</select>";
-
 // requete principale
 $endreq ="";
 $selecta0 = "";
@@ -80,15 +57,11 @@ if(!isset($_GET['archives']))
   $selecta0 = "checked";
   $endreq .= " AND archive ='0'";
 }
-if((isset($_GET['search_etats']))OR(isset($_GET['search_types']))OR(isset($_GET['archives'])))
+if((isset($_GET['search_types']))OR(isset($_GET['archives'])))
 {
   if($_GET['search_types']>0){
 
   $endreq .= " AND fkid_type ='".$_GET['search_types']."'";
-  }
-  if($_GET['search_etats']>0){
-
-  $endreq .= " AND fkid_etat ='".$_GET['search_etats']."'";
   }
   if($_GET['archives']<2){
 
@@ -121,29 +94,7 @@ if(mysqli_num_rows($res_m)==0){//header('location:index.php');
 //echo $req_m;
 while($row_m  = mysqli_fetch_assoc($res_m))
 {
-  // on extrait l'état
-  /*$str_etat = "";
-  $color = "";
-  $req_et="SELECT * FROM etats";
-  $res_et  = mysqli_query($link, $req_et);
-  while($row_et  = mysqli_fetch_assoc($res_et))
-  {
-    if($row_et['id'] == $row_m['fkid_etat']) {
-      $select_etat = "selected";
-      $color = $row_et['color'];
-    }
-    else {
-      $select_etat = "";
-    }
-
-
-    $str_etat .= "<option value='".$row_et['id']."' ".$select_etat.">".$row_et['name']."</option>";
-  }*/
-/*  $str_etat .= "</select>";
-  $str_etat_def = "<select name='etat' style='background-color:#".$color."'>".$str_etat;
-*/
   // on extrait le type
-  $search_types ="";
   $str_types = "<select name='types'>";
 
   $req_ty="SELECT * FROM types";
@@ -162,43 +113,20 @@ while($row_m  = mysqli_fetch_assoc($res_m))
   }
   $str_types .= "</select>";
 
-// etatts
-
-$color = "";
-  $str_etat = "";
-
-  $req_et="SELECT * FROM etats ORDER BY ordo ASC";
-  $res_et  = mysqli_query($link, $req_et);
-  while($row_et  = mysqli_fetch_assoc($res_et))
-  {
-    if($row_et['id'] == $row_m['fkid_etat']) {
-      $select_etat = "selected";
-      $color = $row_et['color'];
-    }
-    else {
-      $select_etat = "";
-    }
-    $str_etat .= "<option value='".$row_et['id']."' $select_etat>".$row_et['name']."</option>";
-
-
-  }
-  $str_etat .= "</select>";
-  $str_etat_def = "<select name='etat' style='background-color:#".$color."'>".$str_etat;
-
 
   $str_main .= "<form action ='tr_upd.php'  method='post'>";
   $str_main .= "
 
   <tr id='i".$row_m['id']."'>
     <td>".$row_m['id']."</td>
-    <td>".date('d/m/Y', $row_m['time_beg'] )."<br/>".$row_m['title_event']."<br/><a href='index.php?id_ev=".$row_m['id']."'>[FICHE DÉTAILS]</a><br/><a href='index_light.php?id_ev=".$row_m['id']."'>[FICHE DÉTAILS v2]</a><br/><a href='../affiche_fly_ev.php?id=".$row_m['id']."' target='blank'>[GÉNÉRATEUR AFFICHE]</a><br/><a href='../ctn_rs_ev.php?id=".$row_m['id']."' target='blank'>[GÉNÉRATEUR CONTENUS RS]</a></td>
-
-    <td><input type='text' name='name' value=\"".$row_m['name']."\"><br/><input type='hidden' name='id' value='".$row_m['id']."'>
-    <input type='text' name='mail' value='".$row_m['mail']."'><br/>
-    <input type='text' name='tel' value='".$row_m['tel']."'></td>
-    <td>".$str_etat_def."</td>
+    <td>".date('d/m/Y', $row_m['time_beg'] )."<br/>".$row_m['title_event']."<br/><a href='index_light.php?id_ev=".$row_m['id']."'>[MODIFIER]</a></td>
     <td>".$str_types."</td>
     <td>
+      <input type='hidden' name='id' value='".$row_m['id']."'>
+      <input type='hidden' name='name' value=\"".$row_m['name']."\">
+      <input type='hidden' name='mail' value='".$row_m['mail']."'>
+      <input type='hidden' name='tel' value='".$row_m['tel']."'>
+      <input type='hidden' name='etat' value='".$row_m['fkid_etat']."'>
       <textarea name ='comment'>".stripslashes($row_m['comment'])."</textarea>
     ";
     if($row_m['time_rappel']>1)
@@ -276,38 +204,38 @@ BAR UTILISE : ";}
 if(!empty($row_data_event['todo-before'])){$val_todo_before =$row_data_event['todo-before'];}else{$val_todo_before ="";}
 if(!empty($row_data_event['todo-after'])){$val_todo_after =$row_data_event['todo-after'];}else{$val_todo_after ="";}
 if(!empty($row_data_event['comment_deroule'])){$val_comment_deroule =$row_data_event['comment_deroule'];}else{$val_comment_deroule ="";}
-if(!empty($row_data_event['comment_resto_public'])){$val_comment_resto_public =$row_data_event['comment_resto_public'];}else{$val_comment_resto_public ="Carné et/ou VG :
-Tarifs : ";}
+if(!empty($row_data_event['comment_resto_public'])){$val_comment_resto_public =$row_data_event['comment_resto_public'];}else{$val_comment_resto_public ="Carné et/ou VG :
+Tarifs : ";}
 if(!empty($row_data_event['comment_resto_cater'])){$val_comment_resto_cater =$row_data_event['comment_resto_cater'];}else{$val_comment_resto_cater ="";}
 if(!empty($row_data_event['com_comm'])){$val_com_comm =$row_data_event['com_comm'];}else{$val_com_comm ="";}
 if(!empty($row_data_event['mo_bene_etat'])){$val_mo_bene_etat =$row_data_event['mo_bene_etat'];}
 if(!empty($row_data_event['mo_salaries_etat'])){$val_mo_salaries_etat =$row_data_event['mo_salaries_etat'];}
 if(!empty($row_data_event['mo_comm'])){$val_mo_comm =$row_data_event['mo_comm'];}else{$val_mo_comm ="";}
 if(!empty($row_data_event['liste_courses'])){$val_liste_courses =$row_data_event['liste_courses'];}else{$val_liste_courses ="";}
-if(!empty($row_data_event['desc_gene'])){$val_desc_gene =$row_data_event['desc_gene'];}else{$val_desc_gene ="Programmation :";}
+if(!empty($row_data_event['desc_gene'])){$val_desc_gene =$row_data_event['desc_gene'];}else{$val_desc_gene ="Programmation :";}
 if(!empty($row_data_event['lien_plan'])){$val_lien_plan =$row_data_event['lien_plan'];}
-if(!empty($row_data_event['ferm_ateliers'])){$val_ferm_ateliers =$row_data_event['ferm_ateliers'];}else{$val_ferm_ateliers ="Auto :
-Vélo :
-Cantine :";}
-if(!empty($row_data_event['mobilier'])){$val_mobilier =$row_data_event['mobilier'];}else{$val_mobilier ="Chaises :
-Tables rectangulaires :
-Tables rondes :
-Autres :";}
-if(!empty($row_data_event['mat_tech'])){$val_mat_tech =$row_data_event['mat_tech'];}else{$val_mat_tech ="Rallonges :
-Multiprises :
-Scène :
-Sono :
-Micro :
-Lumière :
+if(!empty($row_data_event['ferm_ateliers'])){$val_ferm_ateliers =$row_data_event['ferm_ateliers'];}else{$val_ferm_ateliers ="Auto :
+Vélo :
+Cantine :";}
+if(!empty($row_data_event['mobilier'])){$val_mobilier =$row_data_event['mobilier'];}else{$val_mobilier ="Chaises :
+Tables rectangulaires :
+Tables rondes :
+Autres :";}
+if(!empty($row_data_event['mat_tech'])){$val_mat_tech =$row_data_event['mat_tech'];}else{$val_mat_tech ="Rallonges :
+Multiprises :
+Scène :
+Sono :
+Micro :
+Lumière :
 Barrières :
-Écran :
-Chauffages :
-Tireuses mobiles :
-Trousses de secours : complète ? ";}
-if(!empty($row_data_event['vehicules'])){$val_vehicules  =$row_data_event['vehicules'];}else{$val_vehicules  ="Saxo :
-Camion Rouge :
-Kangoo :
-206 :
+Écran :
+Chauffages :
+Tireuses mobiles :
+Trousses de secours : complète ? ";}
+if(!empty($row_data_event['vehicules'])){$val_vehicules  =$row_data_event['vehicules'];}else{$val_vehicules  ="Saxo :
+Camion Rouge :
+Kangoo :
+206 :
 Scenic";}
 
   $str_pop = "<div class='pop'>";
@@ -528,7 +456,7 @@ Scenic";}
     <meta charset="utf-8">
     <title>CRM Suivi événements</title>
     <link rel="stylesheet" href="./admin.css">
-    <script src="./admin.js" defer></script>
+    <script src="./admin.js?v=1" defer></script>
     <script src="https://cdn.tiny.cloud/1/qeu73mhxuefzsc0qgh0t3velh1upnfz8mthf5wdvb421d3w1/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
       tinymce.init({
@@ -547,27 +475,21 @@ Scenic";}
 <?php
 echo "<h1>CRM suivi événements Garage Moderne</h1>";
 echo $str_pop;
-echo "<h2>RAPPELS A FAIRE</h2>";
-echo "<table border='1'>".$str_rappels."</table>";
-echo "<h2>LISTE PRINCIPALE</h2>";
-echo "<h3>INSERER<h3>"
 ?>
-<form action='tr_insert.php' method='post'>
-  <table border="1">
-    <tr>
-
-      <td><input type='text' name='name' placeholder='NOM DE L ÉVÉNEMENT'></td>
-      <td><input type='submit' value ='Insérer'></td>
-    </tr>
-  </table>
-</form>
+<details class="insert-box">
+  <summary>+ Insérer un nouvel événement</summary>
+  <form action='tr_insert.php' method='post' class="insert-form">
+    <input type='hidden' name='from' value='light'>
+    <input type='text' name='name' placeholder='NOM DE L ÉVÉNEMENT'>
+    <input type='submit' value ='Insérer'>
+  </form>
+</details>
 <h3>TRIER<h3>
 <form action='' method="get">
   <table border="1">
     <tr>
 
       <td>TYPE : <?=$str_types_search?></td>
-      <td>ETAT : <?=$str_etat_search?></td>
       <td>ACTIFS <input type="radio" name="archives" value="0" <?=$selecta0?>><br/>ARCHIVES <input type="radio" name="archives" value="1" <?=$selecta1?>><br/>TOUS <input type="radio" name="archives" value="2" <?=$selecta2?>></td>
       <td><input type='submit' value ='TRIER'></td>
     </tr>
@@ -577,10 +499,6 @@ echo "<h3>INSERER<h3>"
 echo "<table border='1'><tr>
   <td>ID</td>
   <td>&Eacutevénement</td>
-
-  <td>Contact</td>
-
-  <td>etat</td>
   <td>type</td>
   <td>Suivi</td>
 </tr>".$str_main."</table>";
