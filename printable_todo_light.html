@@ -1,0 +1,44 @@
+
+<h1>Buvette Fete des solidarités</h1><br/>
+<select id='fO' name='fkid_type'>
+<option value='1' >Privatisation</option>
+<option value='4' >Événement accueilli</option>
+<option value='7' >Événement organisé</option>
+<option value='8' >Événement co-organisé</option>
+</select><table border='1' class='red'><tr><td class='tabcol' colspan='2'><h3>DONN&Eacute;S événement</h3></td></tr>
+<tr><td class='tabcol_list'><span>Titre événent</span></td><td> <textarea rows='2' name='title_event'  id='f1' >Buvette Fete des solidarités</textarea></td></tr>
+<tr><td>Date début accueil public</td><td> <input id='f2' type='date' name='time_beg' value='2025-01-06'></td></tr>
+<tr><td>Date fin accueil public</td><td> <input id='f3' type='date' name='time_end' value='2025-01-06'></td></tr>
+<tr><td class='tabcol_list'><span style='color:red;'>Horaires : </span></td><td><textarea id='f4' rows='2' name='horaires'></textarea></td></tr>
+<tr><td>Organisateur (Structure + référent)</td><td> <input  id='f5' type='text' name='name' value=""></td></tr>
+<tr><td>Tel</td><td> <input id='f6' type='text' name='tel' value=''></td></tr>
+<tr><td>Mail</td><td> <input id='f7' type='text' name='mail' value=''></td></tr>
+<tr><td>Lien dossier</td><td> <input id='f8' type='text' name='link_devis' value=''></td></tr>
+<tr><td>Déroulé </td><td><textarea id='f99' name ='comment_deroule'></textarea></td></tr></table><table border='1' class='green'><tr><td  class='tabcol'  colspan='2'><h3>MAIN D'OEUVRE</h3></td></tr>
+<tr><td class='tabcol_list'>Référent général</td><td><select id='f9' name='fkid_operateur'><option value='19' >Audrey</option><option value='10' >Clément</option><option value='20' >Florian</option><option value='17' >Gaelle</option><option value='16' >Gaetan</option><option value='13' >Gé</option><option value='11' >Jason</option><option value='12' >Jérem</option><option value='6' >Jessica</option><option value='1' >Julien</option><option value='18' >Lilou</option><option value='8' >Marc</option><option value='21' >Marieke</option><option value='2' >Matthieu</option><option value='15' >Mélanie</option></select></td></tr>
+<tr><td>Référent Jour J</td><td><select id='f10'  name='fkid_operateur_dday'><option value='19' >Audrey</option><option value='10' >Clément</option><option value='20' >Florian</option><option value='17' >Gaelle</option><option value='16' >Gaetan</option><option value='13' >Gé</option><option value='11' >Jason</option><option value='12' >Jérem</option><option value='6' >Jessica</option><option value='1' >Julien</option><option value='18' >Lilou</option><option value='8' >Marc</option><option value='21' >Marieke</option><option value='2' >Matthieu</option><option value='15' >Mélanie</option></select></td></tr>
+<tr><td>Main d'oeuvre</td><td><textarea id='f11' name ='mo_comm'>
+</textarea></td></tr></table><table border='1' class='red'><tr><td class='tabcol' colspan='2'><h3>R&Eacute;GIE / ESPACES</h3></td></tr>
+<tr><td class='tabcol_list'>Jauge estimée</td><td><textarea id='f12' name ='jauge_ttl'>
+</textarea></td></tr>
+<tr><td>Régie</td><td><textarea id='f13' name ='espaces'>
+</textarea></td></tr></table><table border='1' class='red'><tr><td class='tabcol' colspan='2'><h3>RESTAURATION</h3></td></tr>
+<tr><td class='tabcol_list'>Besoin resto public*</td><td><textarea id='f14' name ='comment_resto_public'></textarea></td></tr>
+<tr><td>Besoin resto catering*</td><td><textarea id='f15' name ='comment_resto_cater'></textarea></td></tr>
+<tr><td>Courses spécifiques*</td><td><textarea id='f16' name ='liste_courses'></textarea></td></tr>
+<tr><td>Moyens paiement</td><td><textarea Carné et/ou VG :
+Formules :
+Autres spécificités :
+Tarifs : id='f100' name ='moyens_pay'></textarea></td></tr></table><table border='1'><table border='1' class='red'><tr><td class='tabcol' colspan='2'><h3>COMMUNICATION</h3></td></tr>
+<tr><td>Remarques / Contact Com</td><td><textarea  id='f17'   name ='com_comm'></textarea></td></tr>
+<tr><td>Comptes RS à mentionner</td><td><textarea  id='f101'  name ='comptes_rs'></textarea></td></tr>
+<tr><td>Lien ressources Com</td><td> <input id='f18' type='text' name='com_lien' value=''></td></tr></table><table border='1' ><tr><td colspan='2'><h3>CONTENUS COM SITE WEB</h3></td></tr>
+<tr><td class='tabcol_list'><span>Sous-titre PUBLIC</span></td><td><textarea rows='2' name='subtitle_public' id='f19' ></textarea></td></tr>
+<tr><td class='tabcol_list'><span><b style='color:green;'> VISIBLE</b></td><td><a href='./del_line.php?id=325&val=1'>[masquer]</a></td></tr>
+<tr><td class='tabcol_list'><span>lien vers event PUBLIC (si rempli, lien sur home page pointe vers ça et n'ouvre pas popup description)</span></td><td> <input id='f20'  type='text' name='link_event' value=''></td></tr>
+<tr><td><span>Desc PUBLIC</span></td><td><textarea id='f21'  name ='desc_gene_public'></textarea></td></tr>
+<tr><td><span>Categorie</span></td><td><select  id='f22'  name='categ'><option selected value='1'>expo</option><option  value='2'>atelier</option><option  value='3'>marché</option><option  value='4'>concert</option></select></td></tr>
+<tr><td><span>Programme (pour éditeur de fly uniquement)</span></td><td><textarea id='f23'  id='mytextarea'  name ='programme'></textarea></td></tr>
+<tr><td><span>Image</span><span style='color:red;'><br/>PAS DE TITRAGES DANS LE VISUEL</span></td><td><img src='../../img/' width='50px'><input type='file' name='fileToUpload'  id='f24'   /></td></tr>
+<tr><td><span>logo</span></td><td><img src='../../img/' width='50px'><input type='file' name='fileToUpload_2'  id='f25'   /></td></tr>
+<tr><td class='tabcol_list'><span>couleur : </span></td><td> <input  id='f26'   type='color' name='col' value='#000000'></td></tr></table><br/><input type='hidden' value='rien' name='backid' id='backid'></form></div></div>

@@ -1,0 +1,7 @@
+AuthName "Page d'administration protégée"
+
+AuthType Basic
+
+AuthUserFile "/home/onekeybl/www/gm_compta/crm_garage/.htpasswd"
+
+Require valid-user

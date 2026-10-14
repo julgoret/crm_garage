@@ -1,0 +1,13 @@
+<?php
+include_once('./connect_inc.php');
+
+
+$req_ins = 'UPDATE `prospects` SET `archive` = '1' WHERE id = '.$_POST['id'].' LIMIT 1' ;
+mysqli_query($link, $req_ins);
+if($_GET['from']=="simple"){
+  header("Location: ./index0.php");
+  //echo $_POST['from']."XX";
+}else {
+  header("Location: ./index.php");
+}
+?>
