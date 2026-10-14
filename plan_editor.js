@@ -347,7 +347,16 @@
     if (e.key === "ArrowRight") gotoIndex(dayIndex + 1);
   });
 
+  // décale la scène sous la barre fixe (recalculé au resize)
+  function layout() {
+    var bar = document.getElementById("topbar");
+    var scene = document.getElementById("svgWrap");
+    scene.style.top = bar.offsetHeight + "px";
+  }
+  window.addEventListener("resize", layout);
+
   // ---------- init ----------
+  layout();
   syncSliderBounds();
   syncDayBar();
   loadRange().then(function () { paintSliderTicks(); });
