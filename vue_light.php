@@ -23,10 +23,16 @@ while($row = mysqli_fetch_assoc($res))
   }
 
   $str_events .= "
-  <div class='ev-block'>
+  <div class='ev-block' id='ev".$row['id']."'>
     <div class='ev-head'>
       <div class='ev-title'>".stripslashes($row['title_event'])."</div>
       <div class='ev-meta'><span class='ev-date'>".$str_date."</span><span class='ev-horaires'>".nl2br(stripslashes($row['horaires']))."</span></div>
+      ";
+  if($row['time_beg'] > 1)
+  {
+    $str_events .= "<a class='ev-plan-link' href='plan_view.php?date=".date('Y-m-d', $row['time_beg'])."' target='_blank'>Plan du jour</a>";
+  }
+  $str_events .= "
     </div>
     <div class='ev-tabs'>";
 
@@ -122,7 +128,25 @@ while($row = mysqli_fetch_assoc($res))
 <title>Consultation événements — Garage Moderne</title>
 <link rel="stylesheet" href="./admin.css">
 <style>
-  .ev-list { max-width: 900px; }
+  .ev-list { width: 100%; max-width: 900px; }
+  body { padding: 0 10px 30px; }
+  h1 { font-size: 17px; }
+  .ev-title { font-size: 15px; }
+  .ev-meta { flex-direction: column; gap: 2px; font-size: 13px; }
+  .ev-block { border-radius: 10px; }
+  .ev-tabs { padding: 0 12px 12px; }
+  .ev-head { padding: 10px 12px 6px; }
+  .ev-tab td { font-size: 12.5px; padding: 5px 8px; }
+  .ev-tab .tabcol_list { width: 42%; }
+  @media (min-width: 700px) {
+    body { padding: 0 24px 48px; }
+    h1 { font-size: 20px; }
+    .ev-title { font-size: 16px; }
+    .ev-meta { flex-direction: row; gap: 18px; font-size: 13px; }
+    .ev-head { padding: 12px 16px 8px; }
+    .ev-tabs { padding: 0 16px 12px; }
+    .ev-tab td { font-size: 13px; padding: 5px 10px; }
+  }
   .ev-block {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -136,6 +160,11 @@ while($row = mysqli_fetch_assoc($res))
   .ev-meta { display: flex; gap: 18px; margin-top: 3px; font-size: 13px; color: var(--text-muted); }
   .ev-date { font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
   .ev-horaires { white-space: nowrap; }
+  .ev-plan-link {
+    display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 600;
+    color: var(--accent); text-decoration: none;
+  }
+  .ev-plan-link:hover { text-decoration: underline; }
   .ev-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
   .ev-tab { position: relative; }
   .ev-tab summary {
@@ -148,11 +177,21 @@ while($row = mysqli_fetch_assoc($res))
   .ev-tab summary::-webkit-details-marker { display: none; }
   .ev-tab summary::after { content: " ▾"; font-size: 10px; color: var(--text-muted); }
   .ev-tab[open] summary::after { content: " ▴"; }
+  /* mobile-first : le panneau s'insère dans le flux sous les onglets */
   .ev-tab .tab-panel {
-    position: absolute; top: calc(100% + 6px); left: 0; z-index: 20;
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); box-shadow: 0 8px 26px rgba(31,39,51,.18);
-    min-width: 420px; max-width: 560px; padding: 6px;
+    border-radius: var(--radius); box-shadow: 0 2px 10px rgba(31,39,51,.12);
+    width: 100%; padding: 6px; margin-top: 6px;
+  }
+  .ev-tab[open] { width: 100%; }
+  /* en desktop (large), le panneau redevient un popover flottant */
+  @media (min-width: 700px) {
+    .ev-tab .tab-panel {
+      position: absolute; top: calc(100% + 6px); left: 0; z-index: 20;
+      min-width: 420px; max-width: 560px; width: auto;
+      box-shadow: 0 8px 26px rgba(31,39,51,.18);
+    }
+    .ev-tab[open] { width: auto; }
   }
   .ev-tab table { margin: 0; box-shadow: none; border: none; width: 100%; }
   .ev-tab td { font-size: 13px; padding: 5px 10px; }
