@@ -257,15 +257,7 @@ details.insert-box summary {
   list-style: none;
 }
 
-details.insert-box summary::before {
-  content: "+";
-  display: inline-block;
-  width: 18px;
-  font-weight: 700;
-  color: var(--accent);
-}
 
-details.insert-box[open] summary::before { content: "−"; }
 
 details.insert-box summary::-webkit-details-marker { display: none; }
 

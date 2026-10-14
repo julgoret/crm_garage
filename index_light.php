@@ -479,7 +479,7 @@ echo "<h1>CRM suivi événements Garage Moderne</h1>";
 echo $str_pop;
 ?>
 <details class="insert-box">
-  <summary>+ Insérer un nouvel événement</summary>
+  <summary>Insérer un nouvel événement</summary>
   <form action='tr_insert.php' method='post' class="insert-form">
     <input type='hidden' name='from' value='light'>
     <input type='text' name='name' placeholder='NOM DE L ÉVÉNEMENT'>
