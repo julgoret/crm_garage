@@ -262,61 +262,7 @@ while($row_m  = mysqli_fetch_assoc($res_m))
   <head>
     <meta charset="utf-8">
     <title>CRM Suivi flux entrants</title>
-    <style>
-    *{font-family: Arial;}
-    .pop{
-      position: absolute;
-      top:15px;
-
-      left: 50%; /* à 50%/50% du parent référent */
-      transform: translate(-50%, 0%); /* décalage de 50% de sa propre taille */
-      width:700px;
-      min-height:50%;
-      background-color: #ffffff;
-      border: thick double #32a1ce;
-      text-align: center;
-      }
-      .pop table{
-
-        margin:15px;
-      }
-      .red
-      {
-        background-color: #ff7b7b;
-      }
-      .green
-      {
-        background-color: #a6ff7b;
-      }
-      .yellow
-      {
-        background-color: #ffee7b;
-      }
-      .grey
-      {
-        background-color: #cacaca;
-      }
-
-      .tabcol{
-        width:600px;
-      }
-      .tabcol_list{
-        width:300px;
-      }
-      .pop textarea{
-        width:300px;
-
-      }
-      .pop input{
-        width:300px;
-      }
-      .pop select{
-        width:300px;
-      }
-      .pop td{
-        padding: 5px;
-      }
-    </style>
+    <link rel="stylesheet" href="./admin.css">
   </head>
   <body>
 <?php

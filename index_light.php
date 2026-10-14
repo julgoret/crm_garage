@@ -527,61 +527,7 @@ Scenic";}
   <head>
     <meta charset="utf-8">
     <title>CRM Suivi événements</title>
-    <style>
-    *{font-family: Arial;}
-    .pop{
-      position: absolute;
-      top:15px;
-      left: 50%; /* à 50%/50% du parent référent */
-      transform: translate(-50%, 0%); /* décalage de 50% de sa propre taille */
-      width:900px;
-      min-height:50%;
-      background-color: #ffffff;
-      border: thick double #32a1ce;
-      text-align: center;
-      }
-      .pop table{
-
-        margin:15px;
-      }
-      .red
-      {
-        background-color: #ff7b7b;
-      }
-      .green
-      {
-        background-color: #a6ff7b;
-      }
-      .yellow
-      {
-        background-color: #ffee7b;
-      }
-      .grey
-      {
-        background-color: #cacaca;
-      }
-
-      .tabcol{
-        width:600px;
-      }
-      .tabcol_list{
-        width:300px;
-      }
-      .pop textarea{
-        width:600px;
-
-      }
-      .pop input{
-        width:300px;
-      }
-      .pop select{
-        width:300px;
-      }
-      .pop td{
-        padding: 5px;
-        text-align: left;
-      }
-    </style>
+    <link rel="stylesheet" href="./admin.css">
     <script src="https://cdn.tiny.cloud/1/qeu73mhxuefzsc0qgh0t3velh1upnfz8mthf5wdvb421d3w1/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
       tinymce.init({
