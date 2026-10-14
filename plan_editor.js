@@ -270,8 +270,8 @@
     var p = svgPoint(e);
     var dx = p.x - drag.sx, dy = p.y - drag.sy;
     if (drag.corner === null) {
-      z.x = Math.round(drag.ox + dx);
-      z.y = Math.round(drag.oy + dy);
+      z.x = Math.max(0, Math.min(W - z.w, Math.round(drag.ox + dx)));
+      z.y = Math.max(0, Math.min(H - z.h, Math.round(drag.oy + dy)));
     } else {
       var k = drag.corner;
       var x1 = drag.ox, y1 = drag.oy, x2 = drag.ox + drag.ow, y2 = drag.oy + drag.oh;
@@ -279,9 +279,10 @@
       if (k === 1) { x2 += dx; y1 += dy; }
       if (k === 2) { x1 += dx; y2 += dy; }
       if (k === 3) { x2 += dx; y2 += dy; }
-      z.x = Math.round(Math.min(x1, x2)); z.y = Math.round(Math.min(y1, y2));
-      z.w = Math.round(Math.max(10, Math.abs(x2 - x1)));
-      z.h = Math.round(Math.max(10, Math.abs(y2 - y1)));
+      z.x = Math.max(0, Math.round(Math.min(x1, x2)));
+      z.y = Math.max(0, Math.round(Math.min(y1, y2)));
+      z.w = Math.min(W - z.x, Math.round(Math.max(10, Math.abs(x2 - x1))));
+      z.h = Math.min(H - z.y, Math.round(Math.max(10, Math.abs(y2 - y1))));
     }
     dirty = true;
     draw();
@@ -318,7 +319,10 @@
   });
 
   el("addRect").addEventListener("click", function () {
-    zones.push({ name: "Bloc " + (zones.length + 1), x: 380, y: 460, w: 120, h: 80, color: "#4da3ff" });
+    // nouveau bloc au centre du plan, aux proportions du fond (1000×405)
+    var w = 120, h = 60;
+    var x = Math.round((W - w) / 2), y = Math.round((H - h) / 2);
+    zones.push({ name: "Bloc " + (zones.length + 1), x: x, y: y, w: w, h: h, color: "#4da3ff" });
     selected = zones.length - 1;
     dirty = true;
     draw();
