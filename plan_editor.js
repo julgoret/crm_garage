@@ -3,7 +3,7 @@
 (function () {
   var NS = "http://www.w3.org/2000/svg";
   var svg = document.getElementById("plan");
-  var W = 1000, H = 405; // proportions du fond de plan définitif (4000×1621)
+  var W = 1000, H = 495.75; // proportions exactes du fond de plan définitif (4006×1987), jamais rogné ni déformé
   var YEAR = new Date().getFullYear();
   var dayIndex = dayOfYear(new Date());
   // jour initial depuis l'URL (?date=YYYY-MM-DD ou plan/YYYY-MM-DD via rewrite)
@@ -193,7 +193,7 @@
     img.setAttribute("href", "./fond_plan.png");
     img.setAttribute("x", 0); img.setAttribute("y", 0);
     img.setAttribute("width", W); img.setAttribute("height", H);
-    img.setAttribute("preserveAspectRatio", "none");
+    img.setAttribute("preserveAspectRatio", "xMidYMid meet");
     svg.appendChild(img);
   }
 
