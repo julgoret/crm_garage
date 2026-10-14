@@ -6,21 +6,20 @@
   var W = 1000, H = 495.75; // proportions exactes du fond de plan définitif (4006×1987), jamais rogné ni déformé
   var YEAR = new Date().getFullYear();
   var dayIndex = dayOfYear(new Date());
-  // jour initial depuis l'URL (?date=YYYY-MM-DD ou plan/YYYY-MM-DD via rewrite)
-  if (window.PLAN_INIT_DATE) {
-    var d0 = new Date(window.PLAN_INIT_DATE + "T12:00:00");
-    if (!isNaN(d0)) {
-      YEAR = d0.getFullYear();
-      dayIndex = dayOfYear(d0);
-      syncSliderBounds();
-    }
-  }
   var zones = [];
   var savedDates = {};
   var selected = -1;
   var drag = null;
   var dirty = false;
   var el = function (id) { return document.getElementById(id); };
+  // jour initial depuis l'URL (?date=YYYY-MM-DD) — après la définition de el
+  if (window.PLAN_INIT_DATE) {
+    var d0 = new Date(window.PLAN_INIT_DATE + "T12:00:00");
+    if (!isNaN(d0)) {
+      YEAR = d0.getFullYear();
+      dayIndex = dayOfYear(d0);
+    }
+  }
 
   // ---------- utilitaires dates ----------
   function dayOfYear(d) {
