@@ -234,16 +234,6 @@
       label.textContent = z.name;
       grp.appendChild(label);
 
-      var dims = document.createElementNS(NS, "text");
-      dims.setAttribute("x", z.x + z.w / 2);
-      dims.setAttribute("y", z.y + z.h / 2 + 14);
-      dims.setAttribute("text-anchor", "middle");
-      dims.setAttribute("font-size", "11");
-      dims.setAttribute("fill", "#445");
-      dims.setAttribute("pointer-events", "none");
-      dims.textContent = Math.round(z.w) + " × " + Math.round(z.h);
-      grp.appendChild(dims);
-
       grp.addEventListener("mousedown", function (e) { startDrag(e, i, null); });
       grp.addEventListener("dblclick", function () { renameZone(i); });
       svg.appendChild(grp);
@@ -261,7 +251,6 @@
       });
     }
     syncPanel();
-    renderList();
   }
 
   // ---------- interactions ----------
@@ -320,39 +309,19 @@
   // ---------- panneau ----------
   function syncPanel() {
     var on = selected >= 0;
-    ["zName", "zColor", "zX", "zY", "zW", "zH", "delRect"].forEach(function (id) { el(id).disabled = !on; });
+    ["zName", "zColor", "delRect"].forEach(function (id) { el(id).disabled = !on; });
     if (!on) { el("zName").value = ""; return; }
     var z = zones[selected];
     el("zName").value = z.name;
     el("zColor").value = z.color;
-    el("zX").value = z.x; el("zY").value = z.y;
-    el("zW").value = z.w; el("zH").value = z.h;
   }
 
-  function renderList() {
-    var ul = el("zoneList");
-    ul.innerHTML = "";
-    zones.forEach(function (z, i) {
-      var li = document.createElement("li");
-      if (i === selected) li.className = "active";
-      li.innerHTML = '<span class="swatch" style="background:' + z.color + '"></span>' +
-        '<span class="zname"></span><span class="zinfo">' + Math.round(z.w) + '×' + Math.round(z.h) + '</span>';
-      li.querySelector(".zname").textContent = z.name;
-      li.addEventListener("click", function () { selected = i; draw(); });
-      ul.appendChild(li);
-    });
-  }
-
-  ["zName", "zColor", "zX", "zY", "zW", "zH"].forEach(function (id) {
+  ["zName", "zColor"].forEach(function (id) {
     el(id).addEventListener("input", function () {
       if (selected < 0) return;
       var z = zones[selected];
       if (id === "zName") z.name = el(id).value;
       if (id === "zColor") z.color = el(id).value;
-      if (id === "zX") z.x = parseInt(el(id).value) || 0;
-      if (id === "zY") z.y = parseInt(el(id).value) || 0;
-      if (id === "zW") z.w = Math.max(10, parseInt(el(id).value) || 10);
-      if (id === "zH") z.h = Math.max(10, parseInt(el(id).value) || 10);
       dirty = true;
       draw();
     });

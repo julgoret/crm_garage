@@ -52,26 +52,15 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
   <input type="text" id="zName" placeholder="ex : Bar">
   <label>Couleur (hex)</label>
   <input type="color" id="zColor" value="#4da3ff">
-  <label>Position X / Y</label>
-  <div style="display:flex; gap:8px">
-    <input type="number" id="zX"><input type="number" id="zY">
-  </div>
-  <label>Dimensions L / H (px)</label>
-  <div style="display:flex; gap:8px">
-    <input type="number" id="zW"><input type="number" id="zH">
-  </div>
   <button id="addRect">+ Nouveau bloc</button>
   <button id="delRect" class="danger">Supprimer</button>
-
-  <h2>Blocs du jour</h2>
-  <ul class="zone-list" id="zoneList"></ul>
 
   <h2>Actions</h2>
   <button id="savePlan" style="background:#2f9e44;">💾 Enregistrer le plan pour ce jour</button>
   <div style="margin-top:12px">
     <label>Copier le plan d'un autre jour</label>
     <input type="date" id="copyFrom">
-    <button id="copyPlan" class="secondary">Répliquer vers ce jour</button>
+    <button id="copyPlan" class="secondary">Répliquer depuis ce jour</button>
   </div>
 
   <p class="hint">
