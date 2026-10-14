@@ -95,7 +95,7 @@ if(mysqli_num_rows($res_m)==0){//header('location:index.php');
 while($row_m  = mysqli_fetch_assoc($res_m))
 {
   // on extrait le type
-  $str_types = "<select name='types'>";
+  $str_types = "<select name='types' onchange='this.form.submit()'>";
 
   $req_ty="SELECT * FROM types";
   $res_ty  = mysqli_query($link, $req_ty);
@@ -138,7 +138,7 @@ while($row_m  = mysqli_fetch_assoc($res_m))
       <input type='hidden' name='comment' value=\"".str_replace('"', '&quot;', stripslashes($row_m['comment']))."\">
       <input type='hidden' name='time_rdv' value='".date('Y-m-d', $val_rappel)."'>
       <input type='hidden' name='from' value='light'>
-      <input type='submit' class='btn-line btn-valider' value='Valider'>";
+";
     if($row_m['archive'] == 0)
     {
       $str_main_ar_txt = "ARCHIVER";
