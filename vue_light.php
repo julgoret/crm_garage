@@ -28,13 +28,13 @@ while($row = mysqli_fetch_assoc($res))
       <div class='ev-title'>".stripslashes($row['title_event'])."</div>
       <div class='ev-meta'><span class='ev-date'>".$str_date."</span><span class='ev-horaires'>".nl2br(stripslashes($row['horaires']))."</span></div>
       ";
-  if($row['time_beg'] > 1)
-  {
-    $str_events .= "<a class='ev-plan-link' href='plan_view.php?date=".date('Y-m-d', $row['time_beg'])."' target='_blank'>Plan du jour</a>";
-  }
   $str_events .= "
     </div>
     <div class='ev-tabs'>";
+  if($row['time_beg'] > 1)
+  {
+    $str_events .= "<a class='ev-plan-link' href='plan_view.php?date=".date('Y-m-d', $row['time_beg'])."' target='_blank'>Plan</a>";
+  }
 
   // ----- onglet DONNÉES ÉVÉNEMENT -----
   $str_events .= "
@@ -161,10 +161,12 @@ while($row = mysqli_fetch_assoc($res))
   .ev-date { font-weight: 600; color: var(--accent-dark); white-space: nowrap; }
   .ev-horaires { white-space: nowrap; }
   .ev-plan-link {
-    display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 600;
-    color: var(--accent); text-decoration: none;
+    display: inline-block; background: var(--accent); color: #fff;
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 12.5px; font-weight: 600; text-decoration: none;
+    white-space: nowrap;
   }
-  .ev-plan-link:hover { text-decoration: underline; }
+  .ev-plan-link:hover { background: var(--accent-dark); text-decoration: none; }
   .ev-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 16px 12px; }
   .ev-tab { position: relative; }
   .ev-tab summary {
