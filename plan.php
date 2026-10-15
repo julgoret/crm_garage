@@ -86,9 +86,11 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
     <span class="field"><label>Couleur</label><input type="color" id="zColor" value="#4da3ff"></span>
     <span class="sep"></span>
     <button id="addRect">+ Nouveau bloc</button>
+    <button id="addLine">+ Ligne</button>
     <button id="delRect" class="danger">Supprimer</button>
     <span class="sep"></span>
     <button id="savePlan">💾 Enregistrer le plan pour ce jour</button>
+    <button id="exportPng" class="secondary">Export PNG</button>
     <span class="sep"></span>
     <span class="field"><label>Répliquer ce plan du</label><input type="date" id="copyFrom"></span>
     <span class="field"><label>au</label><input type="date" id="copyUntil"></span>
@@ -103,6 +105,6 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
 </div>
 
 <script>window.PLAN_INIT_DATE = <?= json_encode($init_date) ?>;</script>
-<script src="./plan_editor.js?v=8"></script>
+<script src="./plan_editor.js?v=9"></script>
 </body>
 </html>

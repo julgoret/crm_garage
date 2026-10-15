@@ -20,12 +20,17 @@ function valid_zones($zones) {
   if (!is_array($zones)) return false;
   foreach ($zones as $z) {
     if (!is_array($z)) return false;
-    foreach (array('name','x','y','w','h','color') as $k) {
-      if (!array_key_exists($k, $z)) return false;
+    if (!isset($z['name']) || !is_string($z['name']) || mb_strlen($z['name']) > 200) return false;
+    if (!isset($z['color']) || !preg_match('/^#[0-9a-fA-F]{6}$/', $z['color'])) return false;
+    if (isset($z['type']) && $z['type'] === 'line') {
+      foreach (array('x1','y1','x2','y2') as $k) {
+        if (!isset($z[$k]) || !is_numeric($z[$k])) return false;
+      }
+    } else {
+      foreach (array('x','y','w','h') as $k) {
+        if (!isset($z[$k]) || !is_numeric($z[$k])) return false;
+      }
     }
-    if (!is_numeric($z['x']) || !is_numeric($z['y']) || !is_numeric($z['w']) || !is_numeric($z['h'])) return false;
-    if (!is_string($z['name']) || mb_strlen($z['name']) > 200) return false;
-    if (!preg_match('/^#[0-9a-fA-F]{6}$/', $z['color'])) return false;
   }
   return true;
 }

@@ -236,42 +236,65 @@
   function draw() {
     while (svg.firstChild) svg.removeChild(svg.firstChild);
     drawBackground();
-
     zones.forEach(function (z, i) {
       var grp = document.createElementNS(NS, "g");
-      var r = document.createElementNS(NS, "rect");
-      r.setAttribute("x", z.x); r.setAttribute("y", z.y);
-      r.setAttribute("width", z.w); r.setAttribute("height", z.h);
-      r.setAttribute("fill", z.color);
-      r.setAttribute("fill-opacity", "0.45");
-      r.setAttribute("stroke", z.color);
-      r.setAttribute("stroke-width", i === selected ? 1.5 : 0.75);
-      r.setAttribute("class", "rect" + (i === selected ? " selected" : ""));
-      grp.appendChild(r);
-
-      var label = document.createElementNS(NS, "text");
-      label.setAttribute("x", z.x + z.w / 2);
-      label.setAttribute("text-anchor", "middle");
-      label.setAttribute("font-size", "13");
-      label.setAttribute("font-weight", "400");
-      label.setAttribute("fill", "#1f2733");
-      label.setAttribute("pointer-events", "none");
-      wrapText(label, z.name, z.w - 12, z.x + z.w / 2, z.y + z.h / 2);
-      grp.appendChild(label);
-
+      if (z.type === "line") {
+        var ln = document.createElementNS(NS, "line");
+        ln.setAttribute("x1", z.x1); ln.setAttribute("y1", z.y1);
+        ln.setAttribute("x2", z.x2); ln.setAttribute("y2", z.y2);
+        ln.setAttribute("stroke", z.color);
+        ln.setAttribute("stroke-width", i === selected ? (z.thick || 3) + 1.5 : (z.thick || 3));
+        ln.setAttribute("stroke-linecap", "round");
+        ln.setAttribute("class", "rect" + (i === selected ? " selected" : ""));
+        grp.appendChild(ln);
+        var llabel = document.createElementNS(NS, "text");
+        llabel.setAttribute("x", (z.x1 + z.x2) / 2);
+        llabel.setAttribute("y", (z.y1 + z.y2) / 2 - 8);
+        llabel.setAttribute("text-anchor", "middle");
+        llabel.setAttribute("font-size", "13");
+        llabel.setAttribute("font-weight", "400");
+        llabel.setAttribute("fill", "#1f2733");
+        llabel.setAttribute("pointer-events", "none");
+        llabel.textContent = z.name;
+        grp.appendChild(llabel);
+      } else {
+        var r = document.createElementNS(NS, "rect");
+        r.setAttribute("x", z.x); r.setAttribute("y", z.y);
+        r.setAttribute("width", z.w); r.setAttribute("height", z.h);
+        r.setAttribute("fill", z.color);
+        r.setAttribute("fill-opacity", "0.45");
+        r.setAttribute("stroke", z.color);
+        r.setAttribute("stroke-width", i === selected ? 1.5 : 0.75);
+        r.setAttribute("class", "rect" + (i === selected ? " selected" : ""));
+        grp.appendChild(r);
+        var label = document.createElementNS(NS, "text");
+        label.setAttribute("x", z.x + z.w / 2);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("font-size", "13");
+        label.setAttribute("font-weight", "400");
+        label.setAttribute("fill", "#1f2733");
+        label.setAttribute("pointer-events", "none");
+        wrapText(label, z.name, z.w - 12, z.x + z.w / 2, z.y + z.h / 2);
+        grp.appendChild(label);
+      }
       grp.addEventListener("mousedown", function (e) { startDrag(e, i, null); });
       grp.addEventListener("dblclick", function () { renameZone(i); });
       svg.appendChild(grp);
     });
-
     if (selected >= 0) {
       var z = zones[selected];
-      [[z.x, z.y], [z.x + z.w, z.y], [z.x, z.y + z.h], [z.x + z.w, z.y + z.h]].forEach(function (p, k) {
+      var pts;
+      if (z.type === "line") {
+        pts = [[z.x1, z.y1, 0], [z.x2, z.y2, 1]];
+      } else {
+        pts = [[z.x, z.y, 0], [z.x + z.w, z.y, 1], [z.x, z.y + z.h, 2], [z.x + z.w, z.y + z.h, 3]];
+      }
+      pts.forEach(function (p) {
         var h = document.createElementNS(NS, "rect");
         h.setAttribute("x", p[0] - 6); h.setAttribute("y", p[1] - 6);
         h.setAttribute("width", 12); h.setAttribute("height", 12);
         h.setAttribute("class", "handle");
-        h.addEventListener("mousedown", function (e) { startDrag(e, selected, k); });
+        h.addEventListener("mousedown", function (e) { startDrag(e, selected, p[2]); });
         svg.appendChild(h);
       });
     }
@@ -291,7 +314,11 @@
     selected = i;
     var z = zones[i];
     var p = svgPoint(e);
-    drag = { i: i, corner: corner, sx: p.x, sy: p.y, ox: z.x, oy: z.y, ow: z.w, oh: z.h };
+    if (z.type === "line") {
+      drag = { i: i, corner: corner, sx: p.x, sy: p.y, ox1: z.x1, oy1: z.y1, ox2: z.x2, oy2: z.y2 };
+    } else {
+      drag = { i: i, corner: corner, sx: p.x, sy: p.y, ox: z.x, oy: z.y, ow: z.w, oh: z.h };
+    }
     draw();
   }
 
@@ -304,6 +331,23 @@
     var z = zones[drag.i];
     var p = svgPoint(e);
     var dx = p.x - drag.sx, dy = p.y - drag.sy;
+    if (z.type === "line") {
+      if (drag.corner === null) {
+        z.x1 = Math.max(0, Math.min(W, Math.round(drag.ox1 + dx)));
+        z.y1 = Math.max(0, Math.min(H, Math.round(drag.oy1 + dy)));
+        z.x2 = Math.max(0, Math.min(W, Math.round(drag.ox2 + dx)));
+        z.y2 = Math.max(0, Math.min(H, Math.round(drag.oy2 + dy)));
+      } else if (drag.corner === 0) {
+        z.x1 = Math.max(0, Math.min(W, Math.round(drag.ox1 + dx)));
+        z.y1 = Math.max(0, Math.min(H, Math.round(drag.oy1 + dy)));
+      } else {
+        z.x2 = Math.max(0, Math.min(W, Math.round(drag.ox2 + dx)));
+        z.y2 = Math.max(0, Math.min(H, Math.round(drag.oy2 + dy)));
+      }
+      dirty = true;
+      draw();
+      return;
+    }
     if (drag.corner === null) {
       z.x = Math.max(0, Math.min(W - z.w, Math.round(drag.ox + dx)));
       z.y = Math.max(0, Math.min(H - z.h, Math.round(drag.oy + dy)));
@@ -363,6 +407,15 @@
     draw();
   });
 
+  el("addLine").addEventListener("click", function () {
+    // nouvelle ligne horizontale au centre du plan
+    var y = Math.round(H / 2);
+    zones.push({ type: "line", name: "Ligne " + (zones.length + 1), x1: 380, y1: y, x2: 620, y2: y, thick: 3, color: "#e8590c" });
+    selected = zones.length - 1;
+    dirty = true;
+    draw();
+  });
+
   el("delRect").addEventListener("click", function () {
     if (selected < 0) return;
     zones.splice(selected, 1);
@@ -372,6 +425,14 @@
   });
 
   el("savePlan").addEventListener("click", saveDay);
+
+  // enregistrement automatique : toutes les 20 s si des modifications sont en attente
+  window.setInterval(function () {
+    if (dirty) {
+      saveDay();
+      setStatus("ok", "✔ enregistré automatiquement");
+    }
+  }, 20000);
   el("copyPlan").addEventListener("click", function () {
     var from = el("copyFrom").value;
     var until = el("copyUntil").value;
@@ -410,4 +471,44 @@
   syncDayBar();
   loadRange().then(function () { paintSliderTicks(); });
   loadDay();
+})();
+
+// ---------- export PNG du plan du jour ----------
+(function () {
+  var btn = document.getElementById("exportPng");
+  if (!btn) return;
+  btn.addEventListener("click", function () {
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">';
+    s += '<image href="./fond_plan.png" x="0" y="0" width="' + W + '" height="' + H + '"/>';
+    zones.forEach(function (z) {
+      if (z.type === "line") {
+        s += '<line x1="' + z.x1 + '" y1="' + z.y1 + '" x2="' + z.x2 + '" y2="' + z.y2 +
+             '" stroke="' + z.color + '" stroke-width="' + (z.thick || 3) + '" stroke-linecap="round"/>';
+        s += '<text x="' + ((z.x1 + z.x2) / 2) + '" y="' + ((z.y1 + z.y2) / 2 - 8) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
+      } else {
+        s += '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h +
+             '" fill="' + z.color + '" fill-opacity="0.45" stroke="' + z.color + '" stroke-width="0.75" rx="4"/>';
+        s += '<text x="' + (z.x + z.w / 2) + '" y="' + (z.y + z.h / 2) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
+      }
+    });
+    s += "</svg>";
+
+    var img = new Image();
+    var blob = new Blob([s], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    img.onload = function () {
+      var cv = document.createElement("canvas");
+      cv.width = W * 2; cv.height = H * 2;
+      var ctx = cv.getContext("2d");
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      var a = document.createElement("a");
+      a.href = cv.toDataURL("image/png");
+      a.download = "plan_" + iso(dateFromIndex(dayIndex)) + ".png";
+      document.body.appendChild(a); a.click(); a.remove();
+      setStatus("ok", "PNG téléchargé");
+    };
+    img.onerror = function () { setStatus("err", "export PNG impossible"); };
+    img.src = url;
+  });
 })();

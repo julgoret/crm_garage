@@ -73,6 +73,7 @@ $req_ins = 'UPDATE `prospects` SET
 '.$req_media.'
 `desc_gene_public`="'.addslashes($_POST['desc_gene_public']).'",
 `horaires`="'.addslashes($_POST['horaires']).'",
+`horaire_technique`="'.addslashes($_POST['horaire_technique']).'",
 `programme`="'.addslashes($_POST['programme']).'",
 `col`="'.addslashes($_POST['col']).'",
 `lien_plan` ="'.addslashes($_POST['lien_plan']).'",

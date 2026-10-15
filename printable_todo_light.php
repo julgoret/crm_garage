@@ -109,6 +109,9 @@ while($row_type  = mysqli_fetch_assoc($res_type))
     <tr><td class='tabcol_list'> Horaires : </td>
     <td><?=nl2br($row['horaires'])?></td>
     </tr>
+    <tr><td class='tabcol_list'> Horaires techniques : </td>
+    <td><?=nl2br($row['horaire_technique'])?></td>
+    </tr>
     <tr><td>Organisateur (Structure + référent)</td>
     <td><?=nl2br($row['name'])?></td>
     </tr>

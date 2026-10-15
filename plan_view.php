@@ -114,6 +114,13 @@ $next = date('Y-m-d', $ts + 86400);
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 495.75" preserveAspectRatio="xMidYMid meet">
       <image href="./fond_plan.png" x="0" y="0" width="1000" height="495.75" preserveAspectRatio="xMidYMid meet"/>
 <?php foreach($zones as $z): ?>
+<?php if(isset($z['type']) && $z['type'] === 'line'): ?>
+      <line x1="<?=$z['x1']?>" y1="<?=$z['y1']?>" x2="<?=$z['x2']?>" y2="<?=$z['y2']?>"
+            stroke="<?=$z['color']?>" stroke-width="<?=isset($z['thick']) ? $z['thick'] : 3?>" stroke-linecap="round"/>
+      <text x="<?=($z['x1'] + $z['x2']) / 2?>" y="<?=($z['y1'] + $z['y2']) / 2 - 8?>"
+            text-anchor="middle" font-size="13" font-weight="400" fill="#1f2733"
+            pointer-events="none"><?=htmlspecialchars($z['name'])?></text>
+<?php else: ?>
       <rect x="<?=$z['x']?>" y="<?=$z['y']?>" width="<?=$z['w']?>" height="<?=$z['h']?>"
             fill="<?=$z['color']?>" fill-opacity="0.45" stroke="<?=$z['color']?>" stroke-width="0.75" rx="4"/>
       <text text-anchor="middle" font-size="13" font-weight="400" fill="#1f2733" pointer-events="none">
@@ -125,6 +132,7 @@ $next = date('Y-m-d', $ts + 86400);
         <tspan x="<?=$z['x'] + $z['w'] / 2?>" y="<?=$base_y + $k * 16?>"><?=htmlspecialchars($ln)?></tspan>
 <?php endforeach; ?>
       </text>
+<?php endif; ?>
 <?php endforeach; ?>
     </svg>
 <?php endif; ?>

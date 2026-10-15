@@ -51,3 +51,19 @@
     }
   }, true);
 })();
+
+/* Textareas : hauteur adaptée automatiquement au contenu (fiches index_light) */
+(function () {
+  function fit(ta) {
+    ta.style.height = "auto";
+    ta.style.height = Math.max(40, ta.scrollHeight + 4) + "px";
+  }
+  function fitAll() {
+    var tas = document.querySelectorAll("textarea");
+    for (var i = 0; i < tas.length; i++) { fit(tas[i]); }
+  }
+  window.addEventListener("load", fitAll);
+  document.addEventListener("input", function (e) {
+    if (e.target && e.target.tagName === "TEXTAREA") { fit(e.target); }
+  }, true);
+})();

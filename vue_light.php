@@ -55,6 +55,7 @@ while($row = mysqli_fetch_assoc($res))
           <tr><td class='tabcol_list'>Date début accueil public</td><td>".(($row['time_beg'] > 1) ? date("d/m/Y", $row['time_beg']) : "")."</td></tr>
           <tr><td class='tabcol_list'>Date fin accueil public</td><td>".(($row['time_end'] > 1) ? date("d/m/Y", $row['time_end']) : "")."</td></tr>
           <tr><td class='tabcol_list'>Horaires</td><td>".nl2br(stripslashes($row['horaires']))."</td></tr>
+          <tr><td class='tabcol_list'>Horaires techniques</td><td>".nl2br(stripslashes($row['horaire_technique']))."</td></tr>
           <tr><td class='tabcol_list'>Organisateur (Structure + référent)</td><td>".nl2br(stripslashes($row['name']))."</td></tr>
           <tr><td class='tabcol_list'>Tel</td><td>".nl2br($row['tel'])."</td></tr>
           <tr><td class='tabcol_list'>Mail</td><td>".nl2br($row['mail'])."</td></tr>
@@ -206,6 +207,20 @@ while($row = mysqli_fetch_assoc($res))
 </style>
 </head>
 <body>
+<script>
+(function () {
+  document.addEventListener("toggle", function (e) {
+    var d = e.target;
+    if (!d.tagName || d.tagName !== "DETAILS" || !d.open) return;
+    if (!d.className || d.className.indexOf("ev-tab") === -1) return;
+    var bloc = d.parentNode;
+    var onglets = bloc.querySelectorAll("details.ev-tab");
+    for (var i = 0; i < onglets.length; i++) {
+      if (onglets[i] !== d && onglets[i].open) { onglets[i].open = false; }
+    }
+  }, true);
+})();
+</script>
 <h1>Consultation événements</h1>
 <div class="ev-list">
 <?=$str_events?>

@@ -96,6 +96,14 @@ while($row_m  = mysqli_fetch_assoc($res_m))
 {
   // on extrait le type
   $str_form_id = "f".$row_m['id'];
+  $str_class = "";
+  $req_ty_name = "SELECT `name` FROM `types` WHERE `id`='".$row_m['fkid_type']."' LIMIT 1";
+  $res_ty_name = mysqli_query($link, $req_ty_name);
+  $row_ty_name = mysqli_fetch_assoc($res_ty_name);
+  if($row_ty_name && stripos($row_ty_name['name'], "privatisation") !== false)
+  {
+    $str_class = " tr-priv";
+  }
   $str_types = "<select name='types' form='".$str_form_id."'>";
 
   $req_ty="SELECT * FROM types";
@@ -116,7 +124,7 @@ while($row_m  = mysqli_fetch_assoc($res_m))
 
 
   $val_rappel = ($row_m['time_rappel'] > 1) ? $row_m['time_rappel'] : "";
-  $str_main .= "  <tr id='i".$row_m['id']."'>
+  $str_main .= "  <tr id='i".$row_m['id']."' class='".$str_class."'>
     <td>".$row_m['id']."</td>
     <td>".date('d/m/Y', $row_m['time_beg'] )."<br/>".stripslashes($row_m['title_event'])."</td>";
   $str_main .= "    <td class='td-actions'><a class='btn-line' href='index_light.php?id_ev=".$row_m['id']."'>Modifier</a></td>";
@@ -334,6 +342,7 @@ Scenic";}
   $str_pop .= "<tr><td>Date début accueil public</td><td> <input id='f2' onchange='document.getElementById(\"backid\").value=\"f2\";this.form.submit()' type='date' name='time_beg' ".$val_time_beg."></td></tr>";
   $str_pop .= "<tr><td>Date fin accueil public</td><td> <input id='f3' onchange='document.getElementById(\"backid\").value=\"f3\";this.form.submit()' type='date' name='time_end' ".$val_time_end."></td></tr>";
   $str_pop .= "<tr><td class='tabcol_list'><span style='color:red;'>Horaires : </span></td><td><textarea id='f4' onchange='document.getElementById(\"backid\").value=\"f4\";this.form.submit()' rows='2' name='horaires'>".$row_data_event['horaires']."</textarea></td></tr>";
+  $str_pop .= "<tr><td class='tabcol_list'><span>Horaires techniques : </span></td><td><input id='f29' onchange='document.getElementById(\"backid\").value=\"f29\";this.form.submit()' type='text' name='horaire_technique' value=\"".stripslashes($row_data_event['horaire_technique'])."\"></td></tr>";
   $str_pop .= "<tr><td>Organisateur (Structure + référent)</td><td> <input  id='f5' onchange='document.getElementById(\"backid\").value=\"f5\";this.form.submit()' type='text' name='name' value=\"".$row_data_event['name']."\"></td></tr>";
   $str_pop .= "<tr><td>Tel</td><td> <input id='f6' onchange='document.getElementById(\"backid\").value=\"f6\";this.form.submit()' type='text' name='tel' value='".$row_data_event['tel']."'></td></tr>";
   $str_pop .= "<tr><td>Mail</td><td> <input id='f7' onchange='document.getElementById(\"backid\").value=\"f7\";this.form.submit()' type='text' name='mail' value='".$row_data_event['mail']."'></td></tr>";
