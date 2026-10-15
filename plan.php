@@ -105,6 +105,6 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
 </div>
 
 <script>window.PLAN_INIT_DATE = <?= json_encode($init_date) ?>;</script>
-<script src="./plan_editor.js?v=9"></script>
+<script src="./plan_editor.js?v=10"></script>
 </body>
 </html>

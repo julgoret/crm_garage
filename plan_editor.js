@@ -477,38 +477,59 @@
 (function () {
   var btn = document.getElementById("exportPng");
   if (!btn) return;
-  btn.addEventListener("click", function () {
-    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">';
-    s += '<image href="./fond_plan.png" x="0" y="0" width="' + W + '" height="' + H + '"/>';
-    zones.forEach(function (z) {
-      if (z.type === "line") {
-        s += '<line x1="' + z.x1 + '" y1="' + z.y1 + '" x2="' + z.x2 + '" y2="' + z.y2 +
-             '" stroke="' + z.color + '" stroke-width="' + (z.thick || 3) + '" stroke-linecap="round"/>';
-        s += '<text x="' + ((z.x1 + z.x2) / 2) + '" y="' + ((z.y1 + z.y2) / 2 - 8) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
-      } else {
-        s += '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h +
-             '" fill="' + z.color + '" fill-opacity="0.45" stroke="' + z.color + '" stroke-width="0.75" rx="4"/>';
-        s += '<text x="' + (z.x + z.w / 2) + '" y="' + (z.y + z.h / 2) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
-      }
-    });
-    s += "</svg>";
 
-    var img = new Image();
-    var blob = new Blob([s], { type: "image/svg+xml;charset=utf-8" });
-    var url = URL.createObjectURL(blob);
-    img.onload = function () {
-      var cv = document.createElement("canvas");
-      cv.width = W * 2; cv.height = H * 2;
-      var ctx = cv.getContext("2d");
-      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
-      ctx.drawImage(img, 0, 0, cv.width, cv.height);
-      var a = document.createElement("a");
-      a.href = cv.toDataURL("image/png");
-      a.download = "plan_" + iso(dateFromIndex(dayIndex)) + ".png";
-      document.body.appendChild(a); a.click(); a.remove();
-      setStatus("ok", "PNG téléchargé");
-    };
-    img.onerror = function () { setStatus("err", "export PNG impossible"); };
-    img.src = url;
+  // charge le fond de plan et le convertit en dataURL (nécessaire pour dessiner
+  // sur canvas sans taint : une URL relative dans un SVG blob ne se résout pas)
+  var fondDataUrl = null;
+  function loadFond() {
+    return fetch("./fond_plan.png")
+      .then(function (r) { return r.blob(); })
+      .then(function (b) {
+        return new Promise(function (resolve, reject) {
+          var fr = new FileReader();
+          fr.onload = function () { resolve(fr.result); };
+          fr.onerror = reject;
+          fr.readAsDataURL(b);
+        });
+      });
+  }
+
+  btn.addEventListener("click", function () {
+    setStatus("pending", "export…");
+    loadFond().then(function (dataUrl) {
+      fondDataUrl = dataUrl;
+      var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">';
+      s += '<image href="' + fondDataUrl + '" x="0" y="0" width="' + W + '" height="' + H + '"/>';
+      zones.forEach(function (z) {
+        if (z.type === "line") {
+          s += '<line x1="' + z.x1 + '" y1="' + z.y1 + '" x2="' + z.x2 + '" y2="' + z.y2 +
+               '" stroke="' + z.color + '" stroke-width="' + (z.thick || 3) + '" stroke-linecap="round"/>';
+          s += '<text x="' + ((z.x1 + z.x2) / 2) + '" y="' + ((z.y1 + z.y2) / 2 - 8) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
+        } else {
+          s += '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h +
+               '" fill="' + z.color + '" fill-opacity="0.45" stroke="' + z.color + '" stroke-width="0.75" rx="4"/>';
+          s += '<text x="' + (z.x + z.w / 2) + '" y="' + (z.y + z.h / 2) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
+        }
+      });
+      s += "</svg>";
+
+      var img = new Image();
+      img.onload = function () {
+        var cv = document.createElement("canvas");
+        cv.width = W * 2; cv.height = H * 2;
+        var ctx = cv.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.drawImage(img, 0, 0, cv.width, cv.height);
+        var a = document.createElement("a");
+        a.href = cv.toDataURL("image/png");
+        a.download = "plan_" + iso(dateFromIndex(dayIndex)) + ".png";
+        document.body.appendChild(a); a.click(); a.remove();
+        setStatus("ok", "✔ PNG téléchargé");
+      };
+      img.onerror = function () { setStatus("err", "export PNG : rendu impossible"); };
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+    }).catch(function () {
+      setStatus("err", "export PNG : fond de plan introuvable");
+    });
   });
 })();
