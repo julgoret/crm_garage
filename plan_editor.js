@@ -474,62 +474,79 @@
 })();
 
 // ---------- export PNG du plan du jour ----------
+// Méthode 100% canvas : le fond est dessiné directement, puis les blocs,
+// lignes et textes. Pas de SVG intermédiaire, donc aucun problème de CORS,
+// de blob ou de résolution d'URL relative.
 (function () {
   var btn = document.getElementById("exportPng");
   if (!btn) return;
 
-  // charge le fond de plan et le convertit en dataURL (nécessaire pour dessiner
-  // sur canvas sans taint : une URL relative dans un SVG blob ne se résout pas)
-  var fondDataUrl = null;
-  function loadFond() {
-    return fetch("./fond_plan.png")
-      .then(function (r) { return r.blob(); })
-      .then(function (b) {
-        return new Promise(function (resolve, reject) {
-          var fr = new FileReader();
-          fr.onload = function () { resolve(fr.result); };
-          fr.onerror = reject;
-          fr.readAsDataURL(b);
-        });
-      });
+  function loadFondImage() {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      // crossOrigin pour que le canvas ne soit pas taint si le serveur l'autorise
+      img.crossOrigin = "anonymous";
+      img.onload = function () { resolve(img); };
+      img.onerror = function () {
+        // deuxième tentative sans crossOrigin (utile si le serveur n'envoie
+        // pas d'en-têtes CORS : même origine, canvas non taint)
+        var img2 = new Image();
+        img2.onload = function () { resolve(img2); };
+        img2.onerror = reject;
+        img2.src = "./fond_plan.png";
+      };
+      img.src = "./fond_plan.png";
+    });
   }
 
   btn.addEventListener("click", function () {
     setStatus("pending", "export…");
-    loadFond().then(function (dataUrl) {
-      fondDataUrl = dataUrl;
-      var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '">';
-      s += '<image href="' + fondDataUrl + '" x="0" y="0" width="' + W + '" height="' + H + '"/>';
+    loadFondImage().then(function (fond) {
+      var scale = 2; // netteté
+      var cv = document.createElement("canvas");
+      cv.width = Math.round(W * scale);
+      cv.height = Math.round(H * scale);
+      var ctx = cv.getContext("2d");
+      ctx.scale(scale, scale);
+
+      // fond
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(fond, 0, 0, W, H);
+
+      // objets
       zones.forEach(function (z) {
+        ctx.font = "13px 'Segoe UI', Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#1f2733";
         if (z.type === "line") {
-          s += '<line x1="' + z.x1 + '" y1="' + z.y1 + '" x2="' + z.x2 + '" y2="' + z.y2 +
-               '" stroke="' + z.color + '" stroke-width="' + (z.thick || 3) + '" stroke-linecap="round"/>';
-          s += '<text x="' + ((z.x1 + z.x2) / 2) + '" y="' + ((z.y1 + z.y2) / 2 - 8) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
+          ctx.strokeStyle = z.color;
+          ctx.lineWidth = z.thick || 3;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(z.x1, z.y1);
+          ctx.lineTo(z.x2, z.y2);
+          ctx.stroke();
+          ctx.fillText(z.name, (z.x1 + z.x2) / 2, (z.y1 + z.y2) / 2 - 8);
         } else {
-          s += '<rect x="' + z.x + '" y="' + z.y + '" width="' + z.w + '" height="' + z.h +
-               '" fill="' + z.color + '" fill-opacity="0.45" stroke="' + z.color + '" stroke-width="0.75" rx="4"/>';
-          s += '<text x="' + (z.x + z.w / 2) + '" y="' + (z.y + z.h / 2) + '" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="#1f2733">' + z.name + '</text>';
+          ctx.globalAlpha = 0.45;
+          ctx.fillStyle = z.color;
+          ctx.fillRect(z.x, z.y, z.w, z.h);
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = z.color;
+          ctx.lineWidth = 0.75;
+          ctx.strokeRect(z.x, z.y, z.w, z.h);
+          ctx.fillText(z.name, z.x + z.w / 2, z.y + z.h / 2 + 4.5);
         }
       });
-      s += "</svg>";
 
-      var img = new Image();
-      img.onload = function () {
-        var cv = document.createElement("canvas");
-        cv.width = W * 2; cv.height = H * 2;
-        var ctx = cv.getContext("2d");
-        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
-        ctx.drawImage(img, 0, 0, cv.width, cv.height);
-        var a = document.createElement("a");
-        a.href = cv.toDataURL("image/png");
-        a.download = "plan_" + iso(dateFromIndex(dayIndex)) + ".png";
-        document.body.appendChild(a); a.click(); a.remove();
-        setStatus("ok", "✔ PNG téléchargé");
-      };
-      img.onerror = function () { setStatus("err", "export PNG : rendu impossible"); };
-      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+      var a = document.createElement("a");
+      a.href = cv.toDataURL("image/png");
+      a.download = "plan_" + iso(dateFromIndex(dayIndex)) + ".png";
+      document.body.appendChild(a); a.click(); a.remove();
+      setStatus("ok", "✔ PNG téléchargé");
     }).catch(function () {
-      setStatus("err", "export PNG : fond de plan introuvable");
+      setStatus("err", "export PNG : impossible de charger le fond");
     });
   });
 })();
