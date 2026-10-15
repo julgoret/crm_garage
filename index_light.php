@@ -237,10 +237,10 @@ Kangoo :
 Scenic";}
 
   $str_pop = "<div class='pop'>";
-  $str_pop .= "<div style='float:right;padding: 5px;'><a href='./index_light.php".$_SESSION['last_search']."'><b>[FERMER]</b></a><a href='./printable_todo_light.php?id_ev=".$row_data_event['id']."'><b>[IMPRIMER]</b></a>";
+  $str_pop .= "<div class='pop-icons'><a class='pop-icon icon-close' href='./index_light.php".$_SESSION['last_search']."' title='Fermer'>✕</a><a class='pop-icon' href='./printable_todo_light.php?id_ev=".$row_data_event['id']."' title='Imprimer'>⎙</a>";
   if($row_data_event['time_beg'] > 1)
   {
-    $str_pop .= "<a href='./plan.php?date=".date('Y-m-d', $row_data_event['time_beg'])."'><b>[PLAN DU JOUR]</b></a>";
+    $str_pop .= "<a class='pop-icon icon-plan' href='./plan.php?date=".date('Y-m-d', $row_data_event['time_beg'])."' title='Plan du jour'>▦</a>";
   }
   $str_pop .= "</div>";
 

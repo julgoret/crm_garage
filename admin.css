@@ -171,7 +171,7 @@ a[href*="del_def"] { color: var(--danger); }
   top: 15px;
   left: 50%;
   transform: translate(-50%, 0%);
-  width: 960px;
+  width: 760px;
   max-width: calc(100vw - 32px);
   min-height: 50%;
   background: var(--surface);
@@ -184,7 +184,8 @@ a[href*="del_def"] { color: var(--danger); }
   z-index: 100;
 }
 
-.pop table { margin: 15px; width: calc(100% - 30px); }
+.pop table { margin: 15px; width: calc(100% - 30px); box-sizing: border-box; }
+.pop textarea, .pop input[type="text"], .pop input[type="date"], .pop select { max-width: 100%; }
 
 .pop h1 {
   margin: 10px 15px 0;
@@ -311,3 +312,26 @@ details.insert-box .insert-form input[type="text"] { flex: 1; }
   background: #ffe3e3; color: var(--danger); border-color: #f2c4c4;
 }
 .btn-suppr:hover { background: #ffd6d6; }
+
+/* ---------- Pictos haut de popup (FERMER / IMPRIMER / PLAN) ---------- */
+
+.pop-icons {
+  position: absolute; top: 10px; right: 12px;
+  display: flex; gap: 6px; z-index: 10;
+}
+.pop-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: #eef2f7; color: var(--text);
+  text-decoration: none;
+  font-size: 17px; line-height: 1;
+  border: 1px solid var(--border);
+  transition: background .12s;
+}
+.pop-icon:hover { background: #e2ecf5; text-decoration: none; color: var(--text); }
+.pop-icon:visited { color: var(--text); }
+.pop-icon.icon-close { color: var(--danger); }
+.pop-icon.icon-close:hover { background: #ffe3e3; }
+.pop-icon.icon-plan { color: var(--accent-dark); }
+.pop-icon.icon-plan:hover { background: #dcebfa; }
