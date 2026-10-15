@@ -361,3 +361,8 @@ tr.tr-priv:hover td { background-color: #ffeeb5; }
 /* ---------- Textareas à hauteur adaptée (index_light.php) ---------- */
 
 textarea.autoheight { overflow: hidden; }
+
+/* ---------- Picto Google Agenda (popup) ---------- */
+
+.pop-icon.icon-gcal { color: #1a7f37; }
+.pop-icon.icon-gcal:hover { background: #dcf3e2; }

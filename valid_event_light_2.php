@@ -96,5 +96,15 @@ WHERE id = '.$_POST['id'].' LIMIT 1' ;
 `com_comm`="'.addslashes($_POST['com_comm']).'",
 `com_lien`="'.addslashes($_POST['com_lien']).'",*/
 mysqli_query($link, $req_ins);
+
+// poussée automatique vers Google Agenda (silencieuse si désactivée)
+include_once('./gcal_lib.php');
+$req_gcal = "SELECT * FROM `prospects` WHERE `id`='".$_POST['id']."' LIMIT 1";
+$res_gcal = mysqli_query($link, $req_gcal);
+$row_gcal = mysqli_fetch_assoc($res_gcal);
+if($row_gcal)
+{
+  gcal_push_event($link, $row_gcal);
+}
 header("Location: ".$_SERVER['HTTP_REFERER']."#".$_POST['backid'])
 ?>
