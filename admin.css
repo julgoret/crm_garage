@@ -335,3 +335,20 @@ details.insert-box .insert-form input[type="text"] { flex: 1; }
 .pop-icon.icon-close:hover { background: #ffe3e3; }
 .pop-icon.icon-plan { color: var(--accent-dark); }
 .pop-icon.icon-plan:hover { background: #dcebfa; }
+
+/* ---------- Lien vue mobile dans le titre (index_light.php) ---------- */
+
+h1 .h-link {
+  float: right;
+  text-decoration: none;
+  line-height: 1;
+}
+h1 .h-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,.18);
+  border-radius: 8px;
+  font-size: 19px;
+  transition: background .12s;
+}
+h1 .h-link:hover .h-ico { background: rgba(255,255,255,.32); }

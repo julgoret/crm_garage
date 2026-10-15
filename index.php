@@ -1,4 +1,6 @@
 <?php
+header('Location: ./index_light.php');
+exit;
 ini_set('display_errors', 0);
 include_once('./connect_inc.php');
 

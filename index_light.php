@@ -476,7 +476,7 @@ Scenic";}
   </head>
   <body>
 <?php
-echo "<h1>CRM suivi événements Garage Moderne</h1>";
+echo "<h1>CRM suivi événements Garage Moderne <a class='h-link' href='./vue_light.php' title='Consultation mobile'><span class='h-ico'>&#128241;</span></a></h1>";
 echo $str_pop;
 ?>
 <details class="insert-box">
