@@ -97,14 +97,17 @@
   }
 
   function copyDay(fromIso, untilIso) {
-    var date = iso(dateFromIndex(dayIndex));
     setStatus("pending", "copie…");
-    var body = { date: date, from: fromIso };
-    if (untilIso) { body.to = untilIso; }
+    var body = { date: fromIso, to: untilIso, zones: zones };
     api("copy", { method: "POST", body: body }).then(function (j) {
-      savedDates[date] = true;
+      var d = new Date(fromIso + "T12:00:00");
+      var end = new Date(untilIso + "T12:00:00");
+      while (d <= end) {
+        savedDates[iso(d)] = true;
+        d = new Date(d.getTime() + 86400000);
+      }
       paintSliderTicks();
-      return loadDay(true).then(function () { return j; });
+      return j;
     }).then(function (j) {
       var msg = j.count > 1 ? ("✔ plan répliqué sur " + j.count + " jours") : "✔ plan répliqué";
       setStatus("ok", msg);
@@ -371,20 +374,19 @@
   el("savePlan").addEventListener("click", saveDay);
   el("copyPlan").addEventListener("click", function () {
     var from = el("copyFrom").value;
-    if (!from) { setStatus("err", "choisis une date source"); return; }
     var until = el("copyUntil").value;
-    var nb = 1;
-    if (until) {
-      var d1 = new Date(iso(dateFromIndex(dayIndex)) + "T12:00:00");
-      var d2 = new Date(until + "T12:00:00");
-      nb = Math.round((d2 - d1) / 86400000) + 1;
-      if (nb < 1) { setStatus("err", "date de fin avant le jour affiché"); return; }
-    }
-    var msg = "Répliquer le plan du " + from + " sur " + nb + " jour" + (nb > 1 ? "s" : "") + " ?";
-    if (nb > 1) { msg += "\n(du " + iso(dateFromIndex(dayIndex)) + " au " + until + ")"; }
-    if (dirty && !confirm("Des modifications non enregistrées pour ce jour seront perdues.\n" )) return;
-    if (!confirm(msg)) return;
-    copyDay(from, until || null);
+    if (!from) { setStatus("err", "choisis la date de début de la plage"); return; }
+    if (!until) { setStatus("err", "choisis la date de fin de la plage"); return; }
+    if (zones.length === 0) { setStatus("err", "aucun bloc sur la page courante à répliquer"); return; }
+    var d1 = new Date(from + "T12:00:00");
+    var d2 = new Date(until + "T12:00:00");
+    var nb = Math.round((d2 - d1) / 86400000) + 1;
+    if (nb < 1) { setStatus("err", "date de fin avant la date de début"); return; }
+    var msg = "Répliquer les " + zones.length + " bloc(s) de ce plan sur " + nb + " jour" + (nb > 1 ? "s" : "") + " ?";
+    msg += "\n(du " + from + " au " + until + ")";
+    if (nb > 1 && !confirm(msg)) return;
+    if (nb === 1 && !confirm(msg)) return;
+    copyDay(from, until);
   });
 
   // raccourcis clavier : flèches gauche/droite pour changer de jour

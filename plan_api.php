@@ -71,36 +71,28 @@ if ($method === 'POST' && ($action === 'save' || $action === 'copy')) {
   }
 
   if ($action === 'copy') {
-    if (!valid_date($input['from'])) out(array('error' => "date source invalide"), 400);
-    $req = "SELECT zones FROM pl_plans WHERE date_plan = '" . $input['from'] . "' LIMIT 1";
-    $res = mysqli_query($link, $req);
-    $row = mysqli_fetch_assoc($res);
-    if (!$row) out(array('error' => 'aucun plan sauvegardé pour cette date'), 404);
+    // les blocs viennent directement de la page courante
+    if (!valid_zones($input['zones'])) out(array('error' => 'zones invalides'), 400);
+    $zones_json = json_encode($input['zones']);
 
-    // dates cibles : la date du jour, ou une plage du... au...
-    $targets = array();
-    if (isset($input['to']) && $input['to'] !== '') {
-      if (!valid_date($input['to'])) out(array('error' => "date de fin invalide"), 400);
-      if (strtotime($input['to']) < strtotime($input['date'])) out(array('error' => "date de fin antérieure à la date de début"), 400);
-      $cur = strtotime($input['date']);
-      $end = strtotime($input['to']);
-      while ($cur <= $end) {
-        $targets[] = date('Y-m-d', $cur);
-        $cur = strtotime('+1 day', $cur);
-      }
-      if (count($targets) > 366) out(array('error' => "plage trop grande (max 366 jours)"), 400);
-    } else {
-      $targets[] = $input['date'];
-    }
+    // plage cible : du... au... (obligatoires)
+    if (!valid_date($input['date'])) out(array('error' => "date de début de plage invalide"), 400);
+    if (!isset($input['to']) || !valid_date($input['to'])) out(array('error' => "date de fin de plage invalide"), 400);
+    if (strtotime($input['to']) < strtotime($input['date'])) out(array('error' => "date de fin antérieure à la date de début"), 400);
 
+    $cur = strtotime($input['date']);
+    $end = strtotime($input['to']);
     $done = 0;
-    foreach ($targets as $d) {
+    while ($cur <= $end) {
+      $d = date('Y-m-d', $cur);
       $req = "REPLACE INTO pl_plans (date_plan, zones, time_modif) VALUES ('" .
-        $d . "', '" . addslashes($row['zones']) . "', " . time() . ")";
+        $d . "', '" . addslashes($zones_json) . "', " . time() . ")";
       if (!mysqli_query($link, $req)) out(array('error' => 'erreur base'), 500);
       $done++;
+      $cur = strtotime('+1 day', $cur);
     }
-    out(array('ok' => true, 'date' => $input['date'], 'to' => isset($input['to']) ? $input['to'] : '', 'count' => $done));
+    if ($done > 366) out(array('error' => "plage trop grande (max 366 jours)"), 400);
+    out(array('ok' => true, 'date' => $input['date'], 'to' => $input['to'], 'count' => $done));
   }
 }
 
