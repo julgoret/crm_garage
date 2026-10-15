@@ -91,6 +91,7 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
     <button id="savePlan">💾 Enregistrer le plan pour ce jour</button>
     <span class="sep"></span>
     <span class="field"><label>Répliquer depuis ce jour</label><input type="date" id="copyFrom"></span>
+    <span class="field"><label>jusqu'au (plage, facultatif)</label><input type="date" id="copyUntil" title="Laisser vide pour ne pas créer de plage"></span>
     <button id="copyPlan" class="secondary">Répliquer</button>
   </div>
 </div>
@@ -102,6 +103,6 @@ if (isset($_GET['date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET['date']) &
 </div>
 
 <script>window.PLAN_INIT_DATE = <?= json_encode($init_date) ?>;</script>
-<script src="./plan_editor.js?v=6"></script>
+<script src="./plan_editor.js?v=7"></script>
 </body>
 </html>
