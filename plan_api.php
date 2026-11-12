@@ -78,7 +78,6 @@ if ($method === 'POST' && ($action === 'save' || $action === 'copy')) {
   if ($action === 'copy') {
     // les blocs viennent directement de la page courante
     if (!valid_zones($input['zones'])) out(array('error' => 'zones invalides'), 400);
-    $zones_json = json_encode($input['zones']);
 
     // plage cible : du... au... (obligatoires)
     if (!valid_date($input['date'])) out(array('error' => "date de début de plage invalide"), 400);
@@ -90,8 +89,20 @@ if ($method === 'POST' && ($action === 'save' || $action === 'copy')) {
     $done = 0;
     while ($cur <= $end) {
       $d = date('Y-m-d', $cur);
+      // fusion : on conserve les blocs déjà présents sur la journée cible
+      // et on ajoute les blocs copiés par-dessus
+      $merged = $input['zones'];
+      $req = "SELECT zones FROM pl_plans WHERE date_plan = '" . $d . "' LIMIT 1";
+      $res = mysqli_query($link, $req);
+      if (!$res) out(array('error' => 'erreur base'), 500);
+      $row = mysqli_fetch_assoc($res);
+      if ($row && $row['zones']) {
+        $existing = json_decode($row['zones'], true);
+        if (is_array($existing)) $merged = array_merge($existing, $input['zones']);
+      }
+      $merged_json = json_encode($merged);
       $req = "REPLACE INTO pl_plans (date_plan, zones, time_modif) VALUES ('" .
-        $d . "', '" . addslashes($zones_json) . "', " . time() . ")";
+        $d . "', '" . addslashes($merged_json) . "', " . time() . ")";
       if (!mysqli_query($link, $req)) out(array('error' => 'erreur base'), 500);
       $done++;
       $cur = strtotime('+1 day', $cur);
