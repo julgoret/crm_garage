@@ -117,6 +117,25 @@
     });
   }
 
+  function copyBlock(fromIso, untilIso) {
+    if (selected < 0) { setStatus("err", "sélectionne d'abord un bloc à répliquer"); return; }
+    setStatus("pending", "copie du bloc…");
+    var body = { date: fromIso, to: untilIso, zone: zones[selected] };
+    api("copy_block", { method: "POST", body: body }).then(function (j) {
+      var d = new Date(fromIso + "T12:00:00");
+      var end = new Date(untilIso + "T12:00:00");
+      while (d <= end) {
+        savedDates[iso(d)] = true;
+        d = new Date(d.getTime() + 86400000);
+      }
+      paintSliderTicks();
+      var msg = j.count > 1 ? ("✔ bloc répliqué sur " + j.count + " jours") : "✔ bloc répliqué";
+      setStatus("ok", msg);
+    }).catch(function (e) {
+      setStatus("err", "✘ " + e.message);
+    });
+  }
+
   // ---------- barre de jour ----------
   function syncSliderBounds() {
     var slider = el("daySlider");
@@ -448,6 +467,23 @@
     if (nb > 1 && !confirm(msg)) return;
     if (nb === 1 && !confirm(msg)) return;
     copyDay(from, until);
+  });
+
+  el("copyBlock").addEventListener("click", function () {
+    if (selected < 0) { setStatus("err", "sélectionne d'abord un bloc à répliquer"); return; }
+    var from = el("copyFrom").value;
+    var until = el("copyUntil").value;
+    if (!from) { setStatus("err", "choisis la date de début de la plage"); return; }
+    if (!until) { setStatus("err", "choisis la date de fin de la plage"); return; }
+    var d1 = new Date(from + "T12:00:00");
+    var d2 = new Date(until + "T12:00:00");
+    var nb = Math.round((d2 - d1) / 86400000) + 1;
+    if (nb < 1) { setStatus("err", "date de fin avant la date de début"); return; }
+    var msg = "Répliquer le bloc « " + zones[selected].name + " » sur " + nb + " jour" + (nb > 1 ? "s" : "") + " ?";
+    msg += "\n(du " + from + " au " + until + ")";
+    msg += "\nLes blocs déjà présents sur ces jours seront conservés.";
+    if (!confirm(msg)) return;
+    copyBlock(from, until);
   });
 
   // raccourcis clavier : flèches gauche/droite pour changer de jour
